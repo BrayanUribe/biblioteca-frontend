@@ -1,0 +1,54 @@
+<div class="flex flex-col items-center justify-center min-h-[70vh] px-6 text-center animate-fade-in">
+  <div class="max-w-md bg-white rounded-2xl shadow-xl p-10 border border-orange-200/30 backdrop-blur-sm">
+    
+    <!-- Icono Mejorado -->
+    <div class="w-24 h-24 bg-gradient-to-br from-red-100 to-red-200 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-lg">
+      <span class="text-4xl">🚫</span>
+    </div>
+    
+    <!-- Título -->
+    <h1 class="text-3xl font-bold bg-gradient-to-r from-red-500 to-red-600 bg-clip-text text-transparent mb-4">
+      Acceso Denegado
+    </h1>
+    
+    <!-- Descripción -->
+    <p class="text-amber-800/70 text-lg mb-8 leading-relaxed">
+      No tienes los permisos necesarios para acceder a esta página.
+      Contacta al administrador si crees que esto es un error.
+    </p>
+
+    <!-- Botones Mejorados -->
+    <div class="flex flex-col sm:flex-row gap-4 justify-center">
+      
+      <!-- Botón Volver Atrás -->
+      <button 
+        (click)="goBack()" 
+        class="bg-gradient-to-r from-orange-200 to-orange-300 text-amber-900 px-6 py-3 rounded-xl font-semibold 
+               shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 
+               flex items-center justify-center gap-2 group"
+      >
+        <span class="group-hover:scale-110 transition-transform duration-300">←</span>
+        Volver Atrás
+      </button>
+
+      <!-- Botón Dashboard -->
+      <button 
+        (click)="goToDashboard()" 
+        class="bg-gradient-to-r from-amber-200 to-amber-400 text-white px-6 py-3 rounded-xl font-semibold 
+               shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 
+               flex items-center justify-center gap-2 group"
+      >
+        <span class="group-hover:scale-110 transition-transform duration-300">📊</span>
+        Ir a mi Dashboard
+      </button>
+    </div>
+
+    <!-- Información adicional -->
+    <div class="mt-8 pt-6 border-t border-orange-200/30">
+      <div class="flex items-center justify-center gap-2 text-sm text-amber-700/70">
+        <div class="w-2 h-2 bg-red-400 rounded-full animate-pulse"></div>
+        <span>Si necesitas acceso, contacta al administrador</span>
+      </div>
+    </div>
+  </div>
+</div>

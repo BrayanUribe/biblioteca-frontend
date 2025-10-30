@@ -1,0 +1,106 @@
+/* Animaciones básicas pero efectivas */
+@keyframes fade-in {
+  from { 
+    opacity: 0; 
+    transform: translateY(10px);
+  }
+  to { 
+    opacity: 1; 
+    transform: translateY(0);
+  }
+}
+
+@keyframes slide-up {
+  from { 
+    opacity: 0; 
+    transform: translateY(20px);
+  }
+  to { 
+    opacity: 1; 
+    transform: translateY(0);
+  }
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
+}
+
+@keyframes pulse-once {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+@keyframes modal-pop {
+  0% { 
+    opacity: 0; 
+    transform: scale(0.8) translateY(-20px);
+  }
+  100% { 
+    opacity: 1; 
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* Clases de animación */
+.animate-fade-in {
+  animation: fade-in 0.6s ease-out;
+}
+
+.animate-slide-up {
+  animation: slide-up 0.5s ease-out;
+}
+
+.animate-shake {
+  animation: shake 0.5s ease-in-out;
+}
+
+.animate-pulse-once {
+  animation: pulse-once 0.8s ease-in-out;
+}
+
+.modal-pop {
+  animation: modal-pop 0.3s ease-out;
+}
+
+/* Efectos hover */
+.hover-lift {
+  transition: all 0.3s ease;
+}
+
+.hover-lift:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+}
+
+.hover-scale {
+  transition: all 0.2s ease;
+}
+
+.hover-scale:hover {
+  transform: scale(1.05);
+}
+
+.input-focus {
+  transition: all 0.3s ease;
+}
+
+.input-focus:focus {
+  transform: scale(1.02);
+  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.1);
+}
+
+/* Clases de botones reutilizables */
+.btn-amber {
+  @apply bg-amber-100 text-amber-700 px-4 md:px-6 py-2 md:py-3 rounded-xl font-semibold hover:bg-amber-200 transition-all flex items-center gap-2 text-sm md:text-base;
+}
+
+.btn-red {
+  @apply bg-red-100 text-red-700 px-4 md:px-6 py-2 md:py-3 rounded-xl font-semibold hover:bg-red-200 transition-all flex items-center gap-2 text-sm md:text-base;
+}
+
+.btn-primary {
+  @apply bg-gradient-to-r from-amber-500 to-orange-500 text-white py-3 rounded-xl font-medium hover:from-amber-600 hover:to-orange-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-amber-500/25 hover:shadow-amber-500/40;
+}

@@ -1,0 +1,575 @@
+<div class="min-h-screen bg-gradient-to-br from-orange-50 to-amber-50 font-inter">
+  <div class="max-w-7xl mx-auto p-6">
+    
+    <!-- Header -->
+    <header class="bg-white rounded-2xl p-8 mb-8 shadow-xl border border-orange-200/40 backdrop-blur-xl animate-slide-down">
+      <div class="flex justify-between items-center">
+        <div>
+          <h1 class="text-3xl font-bold bg-gradient-to-r from-amber-600 to-amber-700 bg-clip-text text-transparent mb-2">
+            📚 Gestión de Libros
+          </h1>
+          <p class="text-amber-800/70 text-lg">Administra el catálogo de la biblioteca</p>
+        </div>
+        <button class="bg-gradient-to-r from-amber-200 to-amber-400 text-white px-6 py-3 rounded-xl font-semibold 
+                      shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 
+                      flex items-center gap-2 relative overflow-hidden group"
+                (click)="abrirModalNuevoLibro()" 
+                *ngIf="puedeCrear()">
+          <span class="relative z-10">➕</span>
+          <span class="relative z-10">Nuevo Libro</span>
+          <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent 
+                      -skew-x-12 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-500">
+          </div>
+        </button>
+      </div>
+    </header>
+
+    <!-- Estados de carga -->
+    <div *ngIf="cargando" class="bg-white rounded-2xl p-10 text-center mb-6 shadow-lg border border-orange-200/30 animate-fade-in">
+      <div class="w-12 h-12 border-3 border-orange-200 border-t-amber-500 rounded-full animate-spin mx-auto mb-4"></div>
+      <p class="text-amber-800/70">Cargando libros...</p>
+    </div>
+
+    <!-- Estados de error -->
+    <div *ngIf="error && !cargando" class="bg-white rounded-2xl p-10 text-center mb-6 shadow-lg border border-orange-200/30 animate-fade-in">
+      <div class="text-4xl mb-4">⚠️</div>
+      <h3 class="text-red-600 font-semibold mb-2">Error</h3>
+      <p class="text-amber-800/70 mb-4">{{ error }}</p>
+      <button class="bg-orange-100 text-amber-900 px-5 py-2.5 rounded-lg font-medium border border-orange-200 
+                    hover:bg-orange-200 transition-all duration-300 flex items-center gap-2 mx-auto"
+              (click)="cargarLibrosReales()">
+        <span>🔄</span>
+        Reintentar
+      </button>
+    </div>
+
+    <!-- Filtros y Búsqueda -->
+    <section *ngIf="!cargando && libros.length > 0" class="bg-white rounded-2xl p-6 mb-6 shadow-lg border border-orange-200/30 animate-slide-up">
+      <div class="relative max-w-md mb-4">
+        <div class="absolute left-4 top-1/2 transform -translate-y-1/2 text-amber-700/70">🔍</div>
+        <input 
+          type="text" 
+          placeholder="Buscar por título, autor, ISBN o género..."
+          [(ngModel)]="terminoBusqueda"
+          (input)="filtrarLibros()"
+          class="w-full pl-12 pr-4 py-3 border border-orange-200/30 rounded-xl bg-orange-50/50 
+                 focus:outline-none focus:border-amber-500 focus:ring-4 focus:ring-amber-100 
+                 transition-all duration-300">
+      </div>
+      
+      <div class="flex gap-3 items-center flex-wrap">
+        <!-- Filtro de géneros dinámicos -->
+        <select [(ngModel)]="generoSeleccionado" (change)="filtrarLibros()" 
+                class="px-4 py-2.5 border border-orange-200/30 rounded-lg bg-orange-50/50 text-amber-900 
+                       focus:outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-100 
+                       transition-all duration-300">
+          <option value="">Todos los géneros</option>
+          <option *ngFor="let genero of generosUnicos" [value]="genero">{{ genero }}</option>
+        </select>
+
+        <button class="bg-orange-100 text-amber-900 px-5 py-2.5 rounded-lg font-medium border border-orange-200 
+                      hover:bg-orange-200 transition-all duration-300 flex items-center gap-2"
+                (click)="limpiarFiltros()">
+          <span>🔄</span>
+          Limpiar Filtros
+        </button>
+      </div>
+    </section>
+
+    <!-- Estadísticas -->
+    <section *ngIf="!cargando && libros.length > 0" 
+             class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 mb-8 animate-slide-up delay-100">
+      
+      <div class="bg-white p-6 rounded-2xl shadow-lg border border-orange-200/30 
+                  hover:-translate-y-1 transition-all duration-300 group relative overflow-hidden">
+        <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-200 to-amber-400 
+                    scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></div>
+        <div class="flex items-center gap-4">
+          <div class="w-14 h-14 bg-amber-100 rounded-xl flex items-center justify-center text-2xl 
+                     group-hover:scale-110 transition-transform duration-300">📚</div>
+          <div>
+            <h3 class="text-2xl font-bold text-amber-900">{{ contarLibros() }}</h3>
+            <p class="text-amber-700/70 text-sm">Total Libros</p>
+          </div>
+        </div>
+      </div>
+      
+      <div class="bg-white p-6 rounded-2xl shadow-lg border border-orange-200/30 
+                  hover:-translate-y-1 transition-all duration-300 group relative overflow-hidden">
+        <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-200 to-amber-400 
+                    scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></div>
+        <div class="flex items-center gap-4">
+          <div class="w-14 h-14 bg-green-50 rounded-xl flex items-center justify-center text-2xl 
+                     group-hover:scale-110 transition-transform duration-300">✅</div>
+          <div>
+            <h3 class="text-2xl font-bold text-amber-900">{{ contarLibrosDisponibles() }}</h3>
+            <p class="text-amber-700/70 text-sm">Disponibles</p>
+          </div>
+        </div>
+      </div>
+      
+      <div class="bg-white p-6 rounded-2xl shadow-lg border border-orange-200/30 
+                  hover:-translate-y-1 transition-all duration-300 group relative overflow-hidden">
+        <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-200 to-amber-400 
+                    scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></div>
+        <div class="flex items-center gap-4">
+          <div class="w-14 h-14 bg-blue-50 rounded-xl flex items-center justify-center text-2xl 
+                     group-hover:scale-110 transition-transform duration-300">📖</div>
+          <div>
+            <h3 class="text-2xl font-bold text-amber-900">{{ contarGenerosUnicos() }}</h3>
+            <p class="text-amber-700/70 text-sm">Géneros</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Tabla de Libros -->
+    <section *ngIf="!cargando" class="bg-white rounded-2xl p-8 shadow-xl border border-orange-200/30 animate-slide-up delay-200">
+      <div class="flex justify-between items-center mb-6">
+        <h2 class="text-xl font-semibold text-amber-900">Lista de Libros</h2>
+        <div class="flex items-center gap-4">
+          <span class="text-amber-700/70 text-sm">
+            Mostrando {{ librosFiltrados.length }} de {{ libros.length }} libros
+          </span>
+          <button class="bg-orange-100 text-amber-900 px-5 py-2.5 rounded-lg font-medium border border-orange-200 
+                        hover:bg-orange-200 transition-all duration-300 flex items-center gap-2"
+                  (click)="cargarLibrosReales()"
+                  title="Recargar libros">
+            <span>🔄</span>
+            Actualizar
+          </button>
+        </div>
+      </div>
+
+      <div class="overflow-x-auto rounded-xl border border-orange-200/30 bg-white">
+        <table class="w-full min-w-[900px] bg-white" *ngIf="librosFiltrados.length > 0">
+          <thead>
+            <tr>
+              <th class="bg-orange-50/50 px-4 py-4 text-left font-semibold text-amber-900 border-b border-orange-200/30 
+                         cursor-pointer hover:bg-orange-100/50 transition-colors duration-200"
+                  (click)="ordenarPor('titulo')">
+                <div class="flex items-center gap-2">
+                  Libro
+                  <span *ngIf="campoOrden === 'titulo'" class="font-bold">
+                    {{ direccionOrden === 'asc' ? '↑' : '↓' }}
+                  </span>
+                </div>
+              </th>
+              <th class="bg-orange-50/50 px-4 py-4 text-left font-semibold text-amber-900 border-b border-orange-200/30 
+                         cursor-pointer hover:bg-orange-100/50 transition-colors duration-200"
+                  (click)="ordenarPor('autor')">
+                <div class="flex items-center gap-2">
+                  Autor
+                  <span *ngIf="campoOrden === 'autor'" class="font-bold">
+                    {{ direccionOrden === 'asc' ? '↑' : '↓' }}
+                  </span>
+                </div>
+              </th>
+              <th class="bg-orange-50/50 px-4 py-4 text-left font-semibold text-amber-900 border-b border-orange-200/30 
+                         cursor-pointer hover:bg-orange-100/50 transition-colors duration-200"
+                  (click)="ordenarPor('genero')">
+                <div class="flex items-center gap-2">
+                  Género
+                  <span *ngIf="campoOrden === 'genero'" class="font-bold">
+                    {{ direccionOrden === 'asc' ? '↑' : '↓' }}
+                  </span>
+                </div>
+              </th>
+              <th class="bg-orange-50/50 px-4 py-4 text-left font-semibold text-amber-900 border-b border-orange-200/30">
+                ISBN
+              </th>
+              <th class="bg-orange-50/50 px-4 py-4 text-left font-semibold text-amber-900 border-b border-orange-200/30">
+                Stock
+              </th>
+              <th class="bg-orange-50/50 px-4 py-4 text-left font-semibold text-amber-900 border-b border-orange-200/30">
+                Estado
+              </th>
+              <th class="bg-orange-50/50 px-4 py-4 text-left font-semibold text-amber-900 border-b border-orange-200/30">
+                Acciones
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let libro of librosFiltrados" 
+                [class]="libroSeleccionado === libro ? 
+                        'bg-orange-50 border-l-4 border-amber-500' : 
+                        'hover:bg-orange-50/30 transition-all duration-200 hover:translate-x-1'"
+                (click)="seleccionarLibro(libro)"
+                class="cursor-pointer animate-fade-in-row">
+              <td class="px-4 py-4 border-b border-orange-200/20">
+                <div class="flex items-center gap-3">
+                  <div class="w-10 h-10 rounded-lg border-2 border-amber-200 overflow-hidden 
+                             transition-all duration-300 hover:border-amber-400 flex-shrink-0">
+                    <img [src]="libro.imageUrl" [alt]="libro.titulo" 
+                         class="w-full h-full object-cover transition-transform duration-300 hover:scale-110">
+                  </div>
+                  <div class="min-w-0">
+                    <strong class="font-semibold text-amber-900 block truncate">{{ libro.titulo }}</strong>
+                    <span class="text-amber-700/70 text-xs">ID: {{ libro.id }}</span>
+                  </div>
+                </div>
+              </td>
+              <td class="px-4 py-4 border-b border-orange-200/20 text-amber-900">
+                {{ libro.autor }}
+              </td>
+              <td class="px-4 py-4 border-b border-orange-200/20 text-amber-900">
+                <span class="bg-amber-100 text-amber-700 px-3 py-1 rounded-full text-sm font-medium">
+                  {{ libro.genero }}
+                </span>
+              </td>
+              <td class="px-4 py-4 border-b border-orange-200/20 text-amber-900 font-mono text-sm">
+                {{ libro.isbn }}
+              </td>
+              <td class="px-4 py-4 border-b border-orange-200/20 text-amber-900">
+                <span class="font-semibold">{{ libro.stock }}</span>
+              </td>
+              <td class="px-4 py-4 border-b border-orange-200/20">
+                <span [class]="libro.disponible ? 
+                              'bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm font-medium' : 
+                              'bg-red-100 text-red-700 px-3 py-1 rounded-full text-sm font-medium'">
+                  {{ libro.disponible ? 'Disponible' : 'No disponible' }}
+                </span>
+              </td>
+              <td class="px-4 py-4 border-b border-orange-200/20">
+                <div class="flex gap-2">
+                  <button class="bg-orange-50 text-amber-900 px-3 py-2 rounded-lg border border-orange-200 
+                                hover:bg-blue-50 hover:border-blue-300 hover:text-blue-600 transition-all duration-300 
+                                flex items-center gap-1 text-sm"
+                          (click)="editarLibro(libro); $event.stopPropagation()"
+                          title="Editar libro"
+                          *ngIf="puedeEditar()">
+                    <span>✏️</span>
+                    <span class="hidden sm:inline">Editar</span>
+                  </button>
+                  
+                  <button class="bg-orange-50 text-amber-900 px-3 py-2 rounded-lg border border-orange-200 
+                                hover:bg-red-50 hover:border-red-300 hover:text-red-600 transition-all duration-300 
+                                flex items-center gap-1 text-sm"
+                          (click)="abrirModalConfirmacionEliminar(libro); $event.stopPropagation()"
+                          title="Eliminar libro"
+                          *ngIf="puedeEliminar()">
+                    <span>🗑️</span>
+                    <span class="hidden sm:inline">Eliminar</span>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <!-- Estado vacío -->
+        <div *ngIf="librosFiltrados.length === 0 && !cargando" 
+             class="text-center py-16 text-amber-700/70 animate-fade-in">
+          <div class="text-6xl mb-4 opacity-50 animate-bounce">📚</div>
+          <h3 class="text-xl font-semibold text-amber-900 mb-2">No se encontraron libros</h3>
+          <p class="mb-6" *ngIf="libros.length === 0">No hay libros registrados en el sistema</p>
+          <p class="mb-6" *ngIf="libros.length > 0">Intenta ajustar los filtros de búsqueda</p>
+          <div class="flex gap-3 justify-center flex-wrap">
+            <button class="bg-orange-100 text-amber-900 px-5 py-2.5 rounded-lg font-medium border border-orange-200 
+                          hover:bg-orange-200 transition-all duration-300 flex items-center gap-2"
+                    (click)="limpiarFiltros()" 
+                    *ngIf="libros.length > 0">
+              <span>🔄</span>
+              Limpiar filtros
+            </button>
+            <button class="bg-gradient-to-r from-amber-200 to-amber-400 text-white px-6 py-3 rounded-xl font-semibold 
+                          shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 
+                          flex items-center gap-2"
+                    (click)="abrirModalNuevoLibro()" 
+                    *ngIf="puedeCrear()">
+              <span>➕</span>
+              Crear primer libro
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Paginación -->
+      <div *ngIf="librosFiltrados.length > 0 && !cargando" 
+           class="flex justify-between items-center mt-6 py-4 animate-fade-in">
+        <div class="text-amber-700/70 text-sm">
+          Página {{ paginaActual }} de {{ totalPaginas }}
+        </div>
+        <div class="flex items-center gap-3">
+          <button class="bg-orange-100 text-amber-900 px-4 py-2 rounded-lg border border-orange-200 
+                        hover:bg-orange-200 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                  [disabled]="paginaActual === 1"
+                  (click)="cambiarPagina(paginaActual - 1)">
+            ← Anterior
+          </button>
+          
+          <div class="flex gap-1">
+            <span *ngFor="let pagina of obtenerRangoPaginas()"
+                  [class]="pagina === paginaActual ? 
+                          'bg-amber-500 text-white px-3 py-2 rounded-lg shadow-lg' : 
+                          'bg-orange-50 text-amber-900 px-3 py-2 rounded-lg cursor-pointer hover:bg-orange-100 transition-colors duration-200'"
+                  (click)="cambiarPagina(pagina)"
+                  class="min-w-10 text-center font-medium">
+              {{ pagina }}
+            </span>
+          </div>
+          
+          <button class="bg-orange-100 text-amber-900 px-4 py-2 rounded-lg border border-orange-200 
+                        hover:bg-orange-200 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                  [disabled]="paginaActual === totalPaginas"
+                  (click)="cambiarPagina(paginaActual + 1)">
+            Siguiente →
+          </button>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- Modal de Libro -->
+  <div class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 backdrop-blur-sm animate-fade-in"
+       *ngIf="mostrarModal" 
+       (click)="cerrarModal()">
+    <div class="bg-white rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden shadow-2xl border border-orange-200/40 
+                animate-slide-up mx-4"
+         (click)="$event.stopPropagation()">
+      
+      <div class="flex justify-between items-center p-6 border-b border-orange-200/30 bg-orange-50/30">
+        <h2 class="text-xl font-semibold text-amber-900">
+          {{ libroEditando ? 'Editar Libro' : 'Nuevo Libro' }}
+        </h2>
+        <button class="w-8 h-8 rounded-full flex items-center justify-center text-amber-700/70 hover:bg-orange-100 
+                      hover:text-amber-900 transition-all duration-300 disabled:opacity-50"
+                (click)="cerrarModal()" 
+                [disabled]="guardando">
+          ×
+        </button>
+      </div>
+      
+      <form class="flex flex-col h-full" (ngSubmit)="guardarLibro()" #bookForm="ngForm">
+        <div class="p-6 flex-1 overflow-y-auto" [class.opacity-60]="guardando" [class.pointer-events-none]="guardando">
+          
+          <!-- Overlay de loading -->
+          <div *ngIf="guardando" 
+               class="absolute inset-0 bg-white/90 rounded-2xl flex flex-col items-center justify-center z-10">
+            <div class="w-10 h-10 border-3 border-orange-200 border-t-amber-500 rounded-full animate-spin mb-4"></div>
+            <p class="text-amber-700/70">
+              {{ libroEditando ? 'Actualizando libro...' : 'Creando libro...' }}
+            </p>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <div class="flex flex-col">
+              <label for="titulo" class="font-medium text-amber-900 text-sm mb-2">Título *</label>
+              <input type="text" id="titulo" [(ngModel)]="nuevoLibro.titulo" 
+                     name="titulo" required
+                     class="px-4 py-3 border border-orange-200/30 rounded-xl bg-orange-50/50 
+                            focus:outline-none focus:border-amber-500 focus:ring-4 focus:ring-amber-100 
+                            transition-all duration-300 disabled:opacity-60"
+                     placeholder="Ej: Cien años de soledad"
+                     [disabled]="guardando">
+              <div *ngIf="bookForm.submitted && !nuevoLibro.titulo" 
+                   class="text-red-500 text-xs mt-1 flex items-center gap-1">
+                ⚠️ El título es obligatorio
+              </div>
+            </div>
+            
+            <div class="flex flex-col">
+              <label for="autor" class="font-medium text-amber-900 text-sm mb-2">Autor *</label>
+              <select id="autor" [(ngModel)]="nuevoLibro.autorId" name="autor" required
+                      class="px-4 py-3 border border-orange-200/30 rounded-xl bg-orange-50/50 
+                             focus:outline-none focus:border-amber-500 focus:ring-4 focus:ring-amber-100 
+                             transition-all duration-300 disabled:opacity-60"
+                      [disabled]="guardando">
+                <option value="">Seleccionar autor</option>
+                <option *ngFor="let autor of autores" [value]="autor.id">
+                  {{ autor.name }}
+                </option>
+              </select>
+              <div *ngIf="bookForm.submitted && !nuevoLibro.autorId" 
+                   class="text-red-500 text-xs mt-1 flex items-center gap-1">
+                ⚠️ El autor es obligatorio
+              </div>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <div class="flex flex-col">
+              <label for="genero" class="font-medium text-amber-900 text-sm mb-2">Género *</label>
+              <div class="relative">
+                <input type="text" id="genero" [(ngModel)]="nuevoLibro.genero" 
+                       name="genero" required
+                       (input)="buscarSugerenciasGeneros(nuevoLibro.genero)"
+                       (focus)="buscarSugerenciasGeneros(nuevoLibro.genero)"
+                       (blur)="ocultarSugerencias()"
+                       class="w-full px-4 py-3 border border-orange-200/30 rounded-xl bg-orange-50/50 
+                              focus:outline-none focus:border-amber-500 focus:ring-4 focus:ring-amber-100 
+                              transition-all duration-300 disabled:opacity-60"
+                       placeholder="Escribe o selecciona un género"
+                       [disabled]="guardando">
+                
+                <!-- Sugerencias de autocompletado -->
+                <div *ngIf="mostrarSugerencias && sugerenciasGeneros.length > 0" 
+                     class="absolute z-10 w-full mt-1 bg-white border border-orange-200/30 rounded-xl shadow-lg max-h-48 overflow-y-auto">
+                  <div *ngFor="let genero of sugerenciasGeneros" 
+                       (mousedown)="seleccionarGenero(genero)"
+                       class="px-4 py-2 hover:bg-orange-50 cursor-pointer transition-colors duration-200 text-amber-900">
+                    {{ genero }}
+                  </div>
+                </div>
+              </div>
+              <div *ngIf="bookForm.submitted && !nuevoLibro.genero" 
+                   class="text-red-500 text-xs mt-1 flex items-center gap-1">
+                ⚠️ El género es obligatorio
+              </div>
+            </div>
+            
+            <div class="flex flex-col">
+              <label for="isbn" class="font-medium text-amber-900 text-sm mb-2">ISBN *</label>
+              <input type="text" id="isbn" [(ngModel)]="nuevoLibro.isbn" 
+                     name="isbn" required
+                     class="px-4 py-3 border border-orange-200/30 rounded-xl bg-orange-50/50 
+                            focus:outline-none focus:border-amber-500 focus:ring-4 focus:ring-amber-100 
+                            transition-all duration-300 disabled:opacity-60"
+                     placeholder="Ej: 978-1234567890"
+                     [disabled]="guardando">
+              <div *ngIf="bookForm.submitted && !nuevoLibro.isbn" 
+                   class="text-red-500 text-xs mt-1 flex items-center gap-1">
+                ⚠️ El ISBN es obligatorio
+              </div>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <div class="flex flex-col">
+              <label for="anioPublicacion" class="font-medium text-amber-900 text-sm mb-2">Año de publicación *</label>
+              <input type="number" id="anioPublicacion" [(ngModel)]="nuevoLibro.anioPublicacion" 
+                     name="anioPublicacion" required min="1000" max="2100"
+                     class="px-4 py-3 border border-orange-200/30 rounded-xl bg-orange-50/50 
+                            focus:outline-none focus:border-amber-500 focus:ring-4 focus:ring-amber-100 
+                            transition-all duration-300 disabled:opacity-60"
+                     placeholder="Ej: 2024"
+                     [disabled]="guardando">
+              <div *ngIf="bookForm.submitted && (!nuevoLibro.anioPublicacion || nuevoLibro.anioPublicacion < 1000 || nuevoLibro.anioPublicacion > 2100)" 
+                   class="text-red-500 text-xs mt-1 flex items-center gap-1">
+                ⚠️ El año debe ser válido (1000-2100)
+              </div>
+            </div>
+            
+            <div class="flex flex-col">
+              <label for="stock" class="font-medium text-amber-900 text-sm mb-2">Stock *</label>
+              <input type="number" id="stock" [(ngModel)]="nuevoLibro.stock" 
+                     name="stock" required min="0"
+                     class="px-4 py-3 border border-orange-200/30 rounded-xl bg-orange-50/50 
+                            focus:outline-none focus:border-amber-500 focus:ring-4 focus:ring-amber-100 
+                            transition-all duration-300 disabled:opacity-60"
+                     placeholder="Cantidad disponible"
+                     [disabled]="guardando">
+              <div *ngIf="bookForm.submitted && (nuevoLibro.stock === null || nuevoLibro.stock < 0)" 
+                   class="text-red-500 text-xs mt-1 flex items-center gap-1">
+                ⚠️ El stock no puede ser negativo
+              </div>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-3 mb-4">
+            <input type="checkbox" id="disponible" [(ngModel)]="nuevoLibro.disponible" 
+                   name="disponible"
+                   class="w-4 h-4 text-amber-500 bg-orange-50 border-orange-300 rounded focus:ring-amber-500 focus:ring-2"
+                   [disabled]="guardando">
+            <label for="disponible" class="font-medium text-amber-900 text-sm">
+              Disponible para préstamo
+            </label>
+          </div>
+
+          <div class="bg-orange-50/50 rounded-xl p-4 mt-4">
+            <p class="text-amber-700/70 text-sm mb-1">📝 Los campos marcados con * son obligatorios</p>
+          </div>
+
+          <!-- Mensaje de error del formulario -->
+          <div *ngIf="error" 
+               class="bg-red-50 border border-red-200 rounded-xl p-4 mt-4 flex items-center gap-2 text-red-700 animate-shake">
+            <div class="text-lg">⚠️</div>
+            <span class="text-sm">{{ error }}</span>
+          </div>
+        </div>
+        
+        <div class="flex gap-3 justify-end p-6 border-t border-orange-200/30 bg-orange-50/30">
+          <button type="button" 
+                  class="bg-orange-100 text-amber-900 px-6 py-3 rounded-xl font-medium border border-orange-200 
+                         hover:bg-orange-200 transition-all duration-300 disabled:opacity-50"
+                  (click)="cerrarModal()" 
+                  [disabled]="guardando">
+            Cancelar
+          </button>
+          <button type="submit" 
+                  class="bg-gradient-to-r from-amber-200 to-amber-400 text-white px-6 py-3 rounded-xl font-semibold 
+                         shadow-lg hover:shadow-xl transition-all duration-300 disabled:opacity-50 
+                         flex items-center gap-2 min-w-32 justify-center"
+                  [disabled]="guardando">
+            <span *ngIf="guardando" class="flex items-center gap-2">
+              <div class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+              {{ libroEditando ? 'Actualizando...' : 'Creando...' }}
+            </span>
+            <span *ngIf="!guardando">
+              {{ libroEditando ? 'Actualizar Libro' : 'Crear Libro' }}
+            </span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal de Confirmación para Eliminar -->
+  <div class="fixed inset-0 bg-black/50 flex items-center justify-center z-[60] backdrop-blur-sm animate-fade-in"
+       *ngIf="mostrarModalConfirmacion" 
+       (click)="cerrarModalConfirmacion()">
+    <div class="bg-white rounded-2xl w-full max-w-md overflow-hidden shadow-2xl border border-orange-200/40 
+                animate-slide-up mx-4"
+         (click)="$event.stopPropagation()">
+      
+      <div class="flex justify-between items-center p-6 border-b border-orange-200/30 bg-orange-50/30">
+        <h2 class="text-xl font-semibold text-amber-900">Confirmar Eliminación</h2>
+        <button class="w-8 h-8 rounded-full flex items-center justify-center text-amber-700/70 hover:bg-orange-100 
+                      hover:text-amber-900 transition-all duration-300"
+                (click)="cerrarModalConfirmacion()">
+          ×
+        </button>
+      </div>
+      
+      <div class="p-6">
+        <div class="text-center mb-6">
+          <div class="text-5xl mb-4 text-red-500">⚠️</div>
+          <h3 class="text-lg font-semibold text-amber-900 mb-2">
+            ¿Estás seguro de que quieres eliminar el libro <span class="text-amber-700">"{{ libroAEliminar?.titulo }}"</span>?
+          </h3>
+          <p class="text-amber-700/70">
+            Esta acción no se puede deshacer. El libro será eliminado permanentemente del sistema.
+          </p>
+        </div>
+
+        <div class="bg-red-50 border border-red-200 rounded-xl p-4 mb-4">
+          <div class="flex items-start gap-3">
+            <div class="text-red-500 mt-0.5">🗑️</div>
+            <div>
+              <p class="text-red-700 font-medium text-sm">Información del libro a eliminar:</p>
+              <p class="text-red-600 text-sm mt-1"><strong>Título:</strong> {{ libroAEliminar?.titulo }}</p>
+              <p class="text-red-600 text-sm"><strong>Autor:</strong> {{ libroAEliminar?.autor }}</p>
+              <p class="text-red-600 text-sm"><strong>Género:</strong> {{ libroAEliminar?.genero }}</p>
+              <p class="text-red-600 text-sm"><strong>ISBN:</strong> {{ libroAEliminar?.isbn }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="flex gap-3 justify-end p-6 border-t border-orange-200/30 bg-orange-50/30">
+        <button type="button" 
+                class="bg-orange-100 text-amber-900 px-6 py-3 rounded-xl font-medium border border-orange-200 
+                       hover:bg-orange-200 transition-all duration-300"
+                (click)="cerrarModalConfirmacion()">
+          Cancelar
+        </button>
+        <button type="button" 
+                class="bg-gradient-to-r from-red-500 to-red-600 text-white px-6 py-3 rounded-xl font-semibold 
+                       shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 
+                       flex items-center gap-2"
+                (click)="confirmarEliminarLibro()">
+          <span>🗑️</span>
+          Sí, Eliminar Libro
+        </button>
+      </div>
+    </div>

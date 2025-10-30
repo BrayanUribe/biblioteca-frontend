@@ -1,0 +1,102 @@
+/* sidebar.css - SOLO ANIMACIONES como el componente author */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Animaciones personalizadas - Mismo patrón que author */
+@keyframes slide-down {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes fade-in-row {
+  from {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
+}
+
+/* Clases de animación - Mismo sistema que author */
+.animate-slide-down {
+  animation: slide-down 0.6s ease;
+}
+
+.animate-slide-up {
+  animation: slide-up 0.5s ease;
+}
+
+.animate-fade-in {
+  animation: fade-in 0.5s ease;
+}
+
+.animate-fade-in-row {
+  animation: fade-in-row 0.5s ease;
+}
+
+.animate-shake {
+  animation: shake 0.5s ease;
+}
+
+.delay-100 {
+  animation-delay: 0.1s;
+}
+
+.delay-200 {
+  animation-delay: 0.2s;
+}
+
+/* Utilidades específicas para sidebar */
+.line-clamp-1 {
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Estados activos mejorados */
+.router-link-active {
+  background: linear-gradient(135deg, rgb(212, 165, 116), rgb(180, 140, 100)) !important;
+  color: white !important;
+  box-shadow: 0 8px 25px rgba(212, 165, 116, 0.3) !important;
+  transform: scale(1.05) !important;
+  border: none !important;
+}
+
+/* Efectos de entrada escalonados para items del menú */
+.menu-item-stagger:nth-child(1) { animation-delay: 0.05s; }
+.menu-item-stagger:nth-child(2) { animation-delay: 0.1s; }
+.menu-item-stagger:nth-child(3) { animation-delay: 0.15s; }
+.menu-item-stagger:nth-child(4) { animation-delay: 0.2s; }
+.menu-item-stagger:nth-child(5) { animation-delay: 0.25s; }

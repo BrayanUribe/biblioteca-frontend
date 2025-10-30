@@ -1,0 +1,121 @@
+<div class="login-container">
+
+  <div class="background-effects">
+    <div class="floating-shape shape-1"></div>
+    <div class="floating-shape shape-2"></div>
+    <div class="floating-shape shape-3"></div>
+  </div>
+
+  <div class="login-card">
+    <div class="login-header">
+      <div class="logo-container">
+        <div class="logo">
+          <span>📖</span>
+        </div>
+      </div>
+    </div>
+
+
+    <form (ngSubmit)="onLogin()" #loginForm="ngForm" class="login-form">
+      <div class="input-group">
+        <div class="input-container">
+          <span class="input-icon">📧</span>
+          <input
+            type="email"
+            id="email"
+            name="email"
+            [(ngModel)]="email"
+            required
+            placeholder=" "
+            class="modern-input"
+          />
+          <label for="email" class="floating-label">Correo electrónico</label>
+          <div class="input-underline"></div>
+        </div>
+        <div *ngIf="loginForm.submitted && !email" class="validation-error">
+          <span>⚠️ El correo es obligatorio</span>
+        </div>
+      </div>
+
+      <div class="input-group">
+        <div class="input-container">
+          <span class="input-icon">🔒</span>
+          <input
+            type="password"
+            id="password"
+            name="password"
+            [(ngModel)]="password"
+            required
+            placeholder=" "
+            class="modern-input"
+            (input)="onPasswordInput()"
+          />
+          <label for="password" class="floating-label">Contraseña</label>
+          <div class="input-underline"></div>
+        </div>
+        
+ 
+        <div *ngIf="password" class="password-strength">
+          <div class="strength-bar">
+            <div 
+              class="strength-fill" 
+              [class]="'level-' + getSecurityLevel()">
+            </div>
+          </div>
+          <span class="strength-text">{{ getSecurityText() }}</span>
+        </div>
+        
+        <div *ngIf="loginForm.submitted && !password" class="validation-error">
+          <span>⚠️ La contraseña es obligatoria</span>
+        </div>
+      </div>
+
+
+      <div class="remember-forgot">
+        <label class="checkbox-container">
+          <input type="checkbox" />
+          <span class="checkmark"></span>
+          Recordar sesión
+        </label>
+        <a href="#" class="forgot-link">¿Olvidaste tu contraseña?</a>
+      </div>
+
+
+      <button 
+        type="submit" 
+        [disabled]="loginForm.invalid || loading" 
+        class="login-button"
+        [class.loading]="loading">
+        
+        <span class="button-content">
+          <span class="button-icon" *ngIf="!loading"></span>
+          <span class="button-text">
+            {{ loading ? 'Accediendo a tu biblioteca...' : 'Iniciar Sesión' }}
+          </span>
+        </span>
+        
+        <div class="button-loader" *ngIf="loading">
+          <div class="loader-spinner"></div>
+        </div>
+      </button>
+
+      <!-- Mensaje de error -->
+      <div *ngIf="error" class="error-message">
+        <span class="error-icon">⚠️</span>
+        <span class="error-text">{{ error }}</span>
+      </div>
+    </form>
+    
+
+    <!-- Footer -->
+    <div class="login-footer">
+      <p class="footer-text">
+        ¿No tienes una cuenta? 
+        <a href="#" class="footer-link">Solicitar acceso</a>
+      </p>
+      <p class="copyright">&copy; 2025 Biblioteca  · Todos los derechos reservados</p>
+    </div>
+  </div>
+</div>
+
+

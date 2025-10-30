@@ -1,0 +1,320 @@
+<div class="min-h-screen bg-gradient-to-br from-amber-50 to-orange-50 p-4 md:p-6">
+  <!-- Header -->
+  <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 mb-6 md:mb-8 border border-amber-200 animate-fade-in">
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+      <div>
+        <h1 class="text-2xl md:text-3xl font-bold bg-gradient-to-r from-amber-600 to-orange-600 bg-clip-text text-transparent">
+          👤 Mi Perfil
+        </h1>
+        <p class="text-amber-700 mt-2 text-sm md:text-base">Gestiona tu información personal</p>
+      </div>
+      <div class="flex gap-2 md:gap-3 flex-wrap">
+        <button 
+          (click)="openEditModal()"
+          class="btn-amber animate-pulse-once">
+          ✏️ Editar Perfil
+        </button>
+        <button 
+          (click)="logout()"
+          class="btn-red">
+          🚪 Cerrar Sesión
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading" class="text-center py-12 animate-fade-in">
+    <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-amber-600 mx-auto mb-4"></div>
+    <p class="text-amber-700 text-lg">Cargando tu perfil...</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="errorMessage && !loading" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg mb-6 max-w-4xl mx-auto animate-shake">
+    <div class="flex items-center gap-3">
+      <span class="text-lg">⚠️</span>
+      <div>
+        <p class="font-medium">{{ errorMessage }}</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div *ngIf="user && !loading" class="max-w-7xl mx-auto">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
+      
+      <!-- Columna Izquierda - Perfil y Estado -->
+      <div class="space-y-6">
+        <!-- Tarjeta de Perfil -->
+        <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 border border-amber-200 text-center animate-slide-up">
+          <div class="relative mx-auto mb-6">
+            <div class="w-24 h-24 md:w-32 md:h-32 rounded-full mx-auto border-4 border-white shadow-lg overflow-hidden bg-gradient-to-br from-amber-200 to-orange-200 flex items-center justify-center hover-scale">
+              <img 
+                *ngIf="user.imageUrl; else initials"
+                [src]="user.imageUrl" 
+                [alt]="user.name"
+                class="w-full h-full object-cover">
+              <ng-template #initials>
+                <span class="text-2xl md:text-3xl font-bold text-amber-600">{{ getInitials() }}</span>
+              </ng-template>
+            </div>
+            <button 
+              (click)="openImageModal()"
+              class="absolute -bottom-2 -right-2 bg-amber-500 text-white w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center hover:bg-amber-600 transition-colors shadow-lg text-sm hover-scale">
+              📷
+            </button>
+          </div>
+          
+          <h3 class="text-lg md:text-xl font-bold text-amber-900 mb-2 truncate">{{ user.name }}</h3>
+          <p class="text-amber-700 mb-3 text-sm md:text-base">{{ user.role }}</p>
+          
+          <div class="space-y-3 mt-6">
+            <button 
+              (click)="changePassword()"
+              class="btn-amber w-full">
+              🔒 Cambiar Contraseña
+            </button>
+          </div>
+        </div>
+
+        <!-- Estado de Cuenta -->
+        <div class="bg-white rounded-2xl shadow-lg p-6 border border-amber-200 animate-slide-up" style="animation-delay: 0.1s;">
+          <div class="flex items-center gap-3 mb-4">
+            <div class="w-2 h-6 bg-gradient-to-b from-green-500 to-emerald-500 rounded-full"></div>
+            <h3 class="text-lg font-bold text-amber-900">Estado de Cuenta</h3>
+          </div>
+          
+          <div class="space-y-4">
+            <div class="flex justify-between items-center p-3 rounded-lg bg-green-50 border border-green-100 hover-lift">
+              <span class="text-green-700 font-medium text-sm">Estado</span>
+              <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm font-medium flex items-center gap-1">
+                <span class="w-2 h-2 bg-green-500 rounded-full"></span>
+                Activo
+              </span>
+            </div>
+
+            <div class="flex justify-between items-center p-3 rounded-lg bg-blue-50 border border-blue-100 hover-lift">
+              <span class="text-blue-700 font-medium text-sm">Último acceso</span>
+              <span class="text-blue-900 text-sm font-medium">Hoy</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Datos del Sistema -->
+        <div class="bg-white rounded-2xl shadow-lg p-6 border border-amber-200 animate-slide-up" style="animation-delay: 0.2s;">
+          <div class="flex items-center gap-3 mb-4">
+            <div class="w-2 h-6 bg-gradient-to-b from-purple-500 to-indigo-500 rounded-full"></div>
+            <h3 class="text-lg font-bold text-amber-900">Datos del Sistema</h3>
+          </div>
+          
+          <div class="space-y-3 text-sm">
+            <div class="flex justify-between items-center py-2 border-b border-amber-100">
+              <span class="text-amber-700">Cuenta Creada</span>
+              <span class="text-amber-900">{{ user.createdAt | date:'mediumDate' }}</span>
+            </div>
+            
+            <div class="flex justify-between items-center py-2">
+              <span class="text-amber-700">Última Actualización</span>
+              <span class="text-amber-900">{{ user.updatedAt | date:'mediumDate' }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Columna Central - Información Principal -->
+      <div class="lg:col-span-2 space-y-6">
+        <!-- Tarjeta de Información Personal -->
+        <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 border border-amber-200 animate-slide-up">
+          <div class="flex items-center gap-3 mb-6">
+            <div class="w-2 h-8 bg-gradient-to-b from-amber-500 to-orange-500 rounded-full"></div>
+            <h2 class="text-xl md:text-2xl font-bold text-amber-900">Información Personal</h2>
+          </div>
+          
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+            <!-- Información Básica -->
+            <div class="space-y-2 p-4 rounded-lg bg-amber-50 border border-amber-100 hover-lift">
+              <label class="block text-amber-700 font-medium text-sm">👤 Nombre completo</label>
+              <p class="text-amber-900 text-lg font-semibold truncate">{{ user.name }}</p>
+            </div>
+            
+            <div class="space-y-2 p-4 rounded-lg bg-amber-50 border border-amber-100 hover-lift">
+              <label class="block text-amber-700 font-medium text-sm">📧 Correo electrónico</label>
+              <p class="text-amber-900 text-lg truncate">{{ user.email }}</p>
+            </div>
+
+            <div class="space-y-2 p-4 rounded-lg bg-amber-50 border border-amber-100 hover-lift">
+              <label class="block text-amber-700 font-medium text-sm">🎯 Rol del usuario</label>
+              <span [class]="getRoleBadgeClass(user.role)">
+                {{ user.role }}
+              </span>
+            </div>
+
+            <!-- Información Adicional -->
+            <div *ngIf="user.phone" class="space-y-2 p-4 rounded-lg bg-blue-50 border border-blue-100 hover-lift">
+              <label class="block text-blue-700 font-medium text-sm">📞 Teléfono</label>
+              <p class="text-blue-900 text-lg font-medium">{{ user.phone }}</p>
+            </div>
+
+            <div *ngIf="user.address" class="space-y-2 p-4 rounded-lg bg-blue-50 border border-blue-100 hover-lift md:col-span-2">
+              <label class="block text-blue-700 font-medium text-sm">📍 Dirección</label>
+              <p class="text-blue-900 text-lg">{{ user.address }}</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tarjeta de Actividad -->
+        <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 border border-amber-200 animate-slide-up" style="animation-delay: 0.2s;">
+          <div class="flex items-center gap-3 mb-6">
+            <div class="w-2 h-8 bg-gradient-to-b from-purple-500 to-indigo-500 rounded-full"></div>
+            <h2 class="text-xl md:text-2xl font-bold text-amber-900">Historial de Actividad</h2>
+          </div>
+          
+          <div class="space-y-4">
+            <div class="flex items-center gap-4 p-4 rounded-lg bg-purple-50 border border-purple-100 hover-lift">
+              <div class="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center text-purple-600">
+                📅
+              </div>
+              <div class="flex-1">
+                <p class="text-purple-900 font-medium">Cuenta creada</p>
+                <p class="text-purple-700 text-sm">{{ user.createdAt | date:'fullDate' }}</p>
+              </div>
+            </div>
+
+            <div class="flex items-center gap-4 p-4 rounded-lg bg-indigo-50 border border-indigo-100 hover-lift">
+              <div class="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600">
+                🔄
+              </div>
+              <div class="flex-1">
+                <p class="text-indigo-900 font-medium">Última actualización</p>
+                <p class="text-indigo-700 text-sm">{{ user.updatedAt | date:'fullDate' }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de Edición -->
+  <div 
+    [class.hidden]="!showEditModal"
+    class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 animate-fade-in">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md transform transition-all duration-300 scale-100 modal-pop">
+      
+      <!-- Header Modal -->
+      <div class="flex justify-between items-center p-6 border-b border-amber-200">
+        <h2 class="text-xl font-bold text-amber-900">Editar Perfil</h2>
+        <button 
+          (click)="closeEditModal()"
+          class="text-amber-500 hover:text-amber-700 text-2xl transition-colors hover-scale">
+          ×
+        </button>
+      </div>
+      
+      <!-- Formulario -->
+      <form class="p-6 space-y-4" (ngSubmit)="saveProfile()">
+        <div>
+          <label class="block text-amber-800 font-medium mb-2">👤 Nombre completo *</label>
+          <input 
+            type="text" 
+            [(ngModel)]="editingUser.name"
+            name="name"
+            class="w-full px-4 py-3 border border-amber-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent bg-amber-50 transition-all input-focus"
+            placeholder="Tu nombre completo"
+            required>
+        </div>
+        
+        <div>
+          <label class="block text-amber-800 font-medium mb-2">📧 Email *</label>
+          <input 
+            type="email" 
+            [(ngModel)]="editingUser.email"
+            name="email"
+            class="w-full px-4 py-3 border border-amber-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent bg-amber-50 transition-all input-focus"
+            placeholder="tu@email.com"
+            required>
+        </div>
+
+        <!-- Error Message -->
+        <div *ngIf="errorMessage" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg animate-shake">
+          {{ errorMessage }}
+        </div>
+        
+        <!-- Acciones -->
+        <div class="flex gap-3 pt-4">
+          <button 
+            type="button"
+            (click)="closeEditModal()"
+            class="btn-amber flex-1">
+            Cancelar
+          </button>
+          <button 
+            type="submit"
+            [disabled]="loading"
+            class="btn-primary flex-1">
+            {{ loading ? 'Guardando...' : 'Guardar Cambios' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal de Imagen -->
+  <div 
+    [class.hidden]="!showImageModal"
+    class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 animate-fade-in">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md transform transition-all duration-300 scale-100 modal-pop">
+      
+      <!-- Header Modal -->
+      <div class="flex justify-between items-center p-6 border-b border-amber-200">
+        <h2 class="text-xl font-bold text-amber-900">Cambiar Imagen</h2>
+        <button 
+          (click)="closeImageModal()"
+          class="text-amber-500 hover:text-amber-700 text-2xl transition-colors hover-scale">
+          ×
+        </button>
+      </div>
+      
+      <!-- Contenido Imagen -->
+      <div class="p-6 space-y-4">
+        <div class="text-center">
+          <div class="w-32 h-32 rounded-full mx-auto border-4 border-white shadow-lg overflow-hidden bg-gradient-to-br from-amber-200 to-orange-200 flex items-center justify-center mb-4 hover-scale">
+            <img 
+              *ngIf="imagePreview; else initialsPreview"
+              [src]="imagePreview" 
+              alt="Preview"
+              class="w-full h-full object-cover">
+            <ng-template #initialsPreview>
+              <span class="text-2xl font-bold text-amber-600">{{ getInitials() }}</span>
+            </ng-template>
+          </div>
+          
+          <input 
+            type="file" 
+            (change)="onImageSelected($event)"
+            accept="image/*"
+            class="block w-full text-sm text-amber-700 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-amber-50 file:text-amber-700 hover:file:bg-amber-100 transition-colors input-focus">
+          
+          <p class="text-amber-600 text-xs mt-2">Formatos: JPG, PNG, GIF • Máx: 5MB</p>
+        </div>
+        
+        <!-- Acciones -->
+        <div class="flex gap-3 pt-4">
+          <button 
+            type="button"
+            (click)="closeImageModal()"
+            class="btn-amber flex-1">
+            Cancelar
+          </button>
+          <button 
+            type="button"
+            (click)="saveImage()"
+            [disabled]="!selectedImage || loading"
+            class="btn-primary flex-1">
+            {{ loading ? 'Subiendo...' : 'Guardar Imagen' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

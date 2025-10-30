@@ -1,0 +1,92 @@
+<aside class="bg-gradient-to-b from-white to-orange-50 shadow-2xl border-r border-orange-200 h-full transform transition-all duration-300 ease-in-out hover:shadow-xl relative overflow-hidden animate-slide-down">
+  
+  <!-- Efecto de fondo sutil -->
+  <div class="absolute inset-0 bg-gradient-to-br from-orange-50/50 to-amber-50/30 pointer-events-none"></div>
+  
+  <nav class="p-5 space-y-7 relative z-10">
+
+    <!-- Estado de carga - Mismo estilo que author -->
+    <div *ngIf="isLoading" class="text-center py-8 animate-fade-in">
+      <div class="w-8 h-8 border-3 border-orange-200 border-t-amber-500 rounded-full animate-spin mx-auto mb-3"></div>
+      <p class="text-amber-600 text-sm">Cargando menú...</p>
+    </div>
+
+    <!-- Estado de error - Mismo estilo que author -->
+    <div *ngIf="!isLoading && error" class="bg-red-50 border border-red-200 rounded-xl p-4 animate-shake">
+      <div class="flex items-center gap-2 text-red-700">
+        <span>⚠️</span>
+        <p class="text-sm">{{ error }}</p>
+      </div>
+      <button 
+        (click)="loadUserProfile()"
+        class="mt-2 text-red-600 hover:text-red-800 text-xs underline transition-colors duration-300">
+        Reintentar
+      </button>
+    </div>
+
+    <!-- Menú normal -->
+    <div *ngIf="!isLoading && !error && menuGroups.length > 0" class="space-y-8">
+      <div *ngFor="let group of menuGroups; let i = index" class="group-section animate-fade-in" [style.animation-delay]="i * 0.1 + 's'">
+        
+        <!-- Título del grupo - Estilo similar a author -->
+        <h3 class="px-3 text-xs font-bold text-amber-700 uppercase tracking-widest mb-4 transition-all duration-300 hover:translate-x-2 hover:text-amber-800 border-l-3 border-amber-400 pl-3 py-1">
+          {{ group.title }}
+        </h3>
+
+        <!-- Items del menú - Mismo patrón visual que author -->
+        <div class="space-y-2">
+          <a
+            *ngFor="let item of group.items; let j = index"
+            [routerLink]="item.route"
+            routerLinkActive="bg-gradient-to-r from-amber-500 to-amber-600 text-white shadow-lg transform scale-105 border-0"
+            class="flex items-center px-4 py-3 text-amber-900 rounded-xl hover:bg-white hover:shadow-md hover:scale-105 transition-all duration-300 border border-orange-200 group cursor-pointer relative overflow-hidden menu-item-stagger animate-fade-in-row"
+            [title]="item.label">
+            
+            <!-- Efecto de fondo al hover - Como en author -->
+            <div class="absolute inset-0 bg-gradient-to-r from-amber-400 to-amber-500 opacity-0 group-hover:opacity-5 transition-opacity duration-300"></div>
+            
+            <!-- Icono con animaciones - Igual que author -->
+            <span class="w-6 h-6 mr-3 text-base transition-transform duration-300 group-hover:scale-125 group-hover:rotate-12 z-10">
+              {{ item.icon }}
+            </span>
+            
+            <!-- Texto del menú -->
+            <span class="font-semibold text-sm flex-1 transition-all duration-300 group-hover:font-bold z-10">
+              {{ item.label }}
+            </span>
+            
+            <!-- Badge - Mismo estilo que author -->
+            <span 
+              *ngIf="item.badge"
+              class="px-2.5 py-1 text-xs rounded-full bg-gradient-to-r from-red-400 to-red-500 text-white font-bold shadow-sm transition-all duration-300 group-hover:scale-110 group-hover:shadow-md z-10">
+              {{ item.badge }}
+            </span>
+
+            <!-- Indicador derecho - Como en author -->
+            <div class="absolute right-2 w-1.5 h-1.5 bg-amber-400 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10"></div>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Estado vacío - Mismo estilo que author -->
+    <div *ngIf="!isLoading && !error && menuGroups.length === 0" class="text-center py-8 text-amber-600 animate-fade-in">
+      <div class="text-4xl mb-4 opacity-50">📚</div>
+      <h3 class="text-lg font-semibold text-amber-900 mb-2">No hay menús disponibles</h3>
+      <p class="text-sm mb-4">Contacta al administrador del sistema</p>
+    </div>
+  </nav>
+
+  <!-- Información del usuario - Footer con estilo similar -->
+  <div *ngIf="!isLoading" class="absolute bottom-0 left-0 right-0 p-4 border-t border-orange-200 bg-white bg-opacity-80 backdrop-blur-sm animate-slide-up delay-200">
+    <div class="flex items-center justify-between">
+      <div class="flex items-center space-x-2">
+        <div class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+        <span class="text-xs text-amber-600 font-medium">{{ getUserRoleText() }}</span>
+      </div>
+      <span class="text-xs text-amber-500 truncate line-clamp-1 max-w-[120px]" [title]="getUserEmail()">
+        {{ getUserName() }}
+      </span>
+    </div>
+  </div>
+</aside>

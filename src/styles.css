@@ -1,1 +1,200 @@
-/* You can add global styles to this file, and also import other style files */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ========== PREFERENCIAS DE USUARIO GLOBALES ========== */
+:root {
+  /* Tipografía - Valores por defecto */
+  --user-font-size: 16px;
+  --user-font-family: system-ui, -apple-system, sans-serif;
+  --user-line-height: 1.5;
+  --user-letter-spacing: 0;
+  
+  /* Colores - Valores por defecto */
+  --user-primary-color: 217 119 6;
+  --user-secondary-color: 234 88 12;
+}
+
+/* APLICAR a TODO el HTML */
+html {
+  font-size: var(--user-font-size) !important;
+  font-family: var(--user-font-family) !important;
+  line-height: var(--user-line-height) !important;
+  letter-spacing: var(--user-letter-spacing) !important;
+}
+
+/* CLASES PARA ACTUALIZAR VARIABLES */
+.global-font-size-small { --user-font-size: 14px !important; }
+.global-font-size-medium { --user-font-size: 16px !important; }
+.global-font-size-large { --user-font-size: 18px !important; }
+.global-font-size-x-large { --user-font-size: 20px !important; }
+
+.global-font-family-system { --user-font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif !important; }
+.global-font-family-inter { --user-font-family: 'Inter', system-ui, sans-serif !important; }
+.global-font-family-roboto { --user-font-family: 'Roboto', system-ui, sans-serif !important; }
+.global-font-family-open-sans { --user-font-family: 'Open Sans', system-ui, sans-serif !important; }
+.global-font-family-georgia { --user-font-family: Georgia, serif !important; }
+
+.global-line-height-tight { --user-line-height: 1.25 !important; }
+.global-line-height-normal { --user-line-height: 1.5 !important; }
+.global-line-height-relaxed { --user-line-height: 1.75 !important; }
+
+.global-letter-spacing-tight { --user-letter-spacing: -0.025em !important; }
+.global-letter-spacing-normal { --user-letter-spacing: 0 !important; }
+.global-letter-spacing-wide { --user-letter-spacing: 0.025em !important; }
+
+/* ========== CLASES DE COLORES PARA PREFERENCIAS ========== */
+.user-theme-primary {
+  background-color: rgb(var(--user-primary-color, 217 119 6)) !important;
+}
+
+.user-theme-secondary {
+  background-color: rgb(var(--user-secondary-color, 234 88 12)) !important;
+}
+
+.user-theme-gradient {
+  background: linear-gradient(135deg, 
+    rgb(var(--user-primary-color, 217 119 6) / 0.1) 0%, 
+    rgb(var(--user-secondary-color, 234 88 12) / 0.1) 100%
+  ) !important;
+}
+
+.user-theme-border {
+  border-color: rgb(var(--user-primary-color, 217 119 6) / 0.3) !important;
+}
+
+.user-theme-text {
+  color: rgb(var(--user-primary-color, 217 119 6)) !important;
+}
+
+/* Contraste */
+.global-contrast-high {
+  filter: contrast(150%) !important;
+}
+
+/* Reducción de movimiento */
+.global-reduce-motion * {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+}
+
+/* OVERRIDE DE COLORES TAILWIND CON VARIABLES DE USUARIO */
+.bg-amber-500 {
+  background-color: rgb(var(--user-primary-color) / var(--tw-bg-opacity, 1)) !important;
+}
+
+.bg-orange-500 {
+  background-color: rgb(var(--user-secondary-color) / var(--tw-bg-opacity, 1)) !important;
+}
+
+.text-amber-600 {
+  color: rgb(var(--user-primary-color) / var(--tw-text-opacity, 1)) !important;
+}
+
+.text-orange-600 {
+  color: rgb(var(--user-secondary-color) / var(--tw-text-opacity, 1)) !important;
+}
+
+.border-amber-200 {
+  border-color: rgb(var(--user-primary-color) / 0.2) !important;
+}
+
+/* Animaciones personalizadas para Tailwind */
+@keyframes slide-down {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes fade-in-row {
+  from {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
+}
+
+.animate-slide-down {
+  animation: slide-down 0.6s ease;
+}
+
+.animate-slide-up {
+  animation: slide-up 0.5s ease;
+}
+
+.animate-fade-in {
+  animation: fade-in 0.5s ease;
+}
+
+.animate-fade-in-row {
+  animation: fade-in-row 0.5s ease;
+}
+
+.animate-shake {
+  animation: shake 0.5s ease;
+}
+
+.delay-100 {
+  animation-delay: 0.1s;
+}
+
+.delay-200 {
+  animation-delay: 0.2s;
+}
+
+/* Clases para los badges de rol */
+.bg-pink-50 { background-color: rgb(253, 242, 248) !important; }
+.text-pink-600 { color: rgb(219, 39, 119) !important; }
+.border-pink-200 { border-color: rgb(251, 207, 232) !important; }
+
+.bg-purple-50 { background-color: rgb(250, 245, 255) !important; }
+.text-purple-600 { color: rgb(147, 51, 234) !important; }
+.border-purple-200 { border-color: rgb(233, 213, 255) !important; }
+
+.bg-blue-50 { background-color: rgb(239, 246, 255) !important; }
+.text-blue-600 { color: rgb(37, 99, 235) !important; }
+.border-blue-200 { border-color: rgb(191, 219, 254) !important; }
+
+/* Modal persistente - evita que se cierre al hacer clic fuera */
+.modal-persistent {
+  pointer-events: auto;
+}
+
+.modal-persistent .modal-content {
+  pointer-events: auto;
+}

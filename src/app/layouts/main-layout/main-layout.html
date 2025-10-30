@@ -1,0 +1,27 @@
+<div class="min-h-screen flex flex-col bg-crema-50">
+  <!-- Header -->
+  <app-header class="fixed top-0 left-0 right-0 z-50 h-16"></app-header>
+  
+  <!-- Contenido principal -->
+  <div class="flex flex-1 pt-16 min-h-0">
+    
+    <!-- Sidebar con animación -->
+    <div 
+      *ngIf="isSidebarOpen"
+      class="w-64 flex-shrink-0 transition-all duration-300 ease-in-out"
+      [class]="isSidebarOpen ? 'translate-x-0' : '-translate-x-full'">
+      <app-sidebar></app-sidebar>
+    </div>
+    
+    <!-- Área de contenido que se expande/contrae -->
+    <main 
+      class="flex-1 min-h-0 overflow-auto transition-all duration-300 ease-in-out"
+      [class]="isSidebarOpen ? 'ml-0' : 'ml-0'">
+      <div class="p-6">
+        <router-outlet></router-outlet>
+      </div>
+    </main>
+  </div>
+  
+  <app-footer></app-footer>
+</div>

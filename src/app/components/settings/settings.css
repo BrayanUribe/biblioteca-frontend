@@ -1,0 +1,286 @@
+/* ========== ESTILOS ESPECÍFICOS DEL COMPONENTE SETTINGS ========== */
+
+/* Contenedores y layout */
+.settings-container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #fef3c7 0%, #ffedd5 100%);
+  padding: 1rem;
+}
+
+@media (min-width: 768px) {
+  .settings-container {
+    padding: 1.5rem;
+  }
+}
+
+/* Header */
+.settings-header {
+  background: white;
+  border-radius: 1rem;
+  padding: 1.5rem;
+  box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+  border: 1px solid #fcd34d;
+  position: sticky;
+  top: 1rem;
+  z-index: 10;
+  margin-bottom: 1.5rem;
+}
+
+/* Botones */
+.btn-amber {
+  background-color: #f3f4f6;
+  color: #374151;
+  padding: 0.5rem 1rem;
+  border-radius: 0.75rem;
+  font-weight: 600;
+  transition: all 0.3s;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  border: none;
+  cursor: pointer;
+}
+
+.btn-amber:hover {
+  background-color: #e5e7eb;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 0.75rem;
+  font-weight: 500;
+  transition: all 0.3s;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  border: none;
+  cursor: pointer;
+}
+
+.btn-primary:hover {
+  background: linear-gradient(135deg, #4b5563 0%, #374151 100%);
+}
+
+/* Preview Master */
+.preview-master-container {
+  transition: all 0.5s;
+  border-radius: 1rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1);
+  padding: 1.5rem;
+}
+
+@media (min-width: 768px) {
+  .preview-master-container {
+    padding: 2rem;
+  }
+}
+
+/* Tarjetas de configuración */
+.config-card {
+  background: white;
+  border-radius: 1rem;
+  box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+  padding: 1.5rem;
+  border: 1px solid #fcd34d;
+}
+
+/* Tarjetas de colores */
+.color-preset-card {
+  transition: all 0.3s;
+  border: 2px solid #d1d5db;
+  height: 5rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  border: 2px solid #d1d5db;
+}
+
+.color-preset-card:hover {
+  transform: scale(1.05);
+  box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1);
+}
+
+.color-preset-card.active {
+  border-color: white;
+  box-shadow: 0 0 0 4px rgba(156, 163, 175, 0.5);
+  transform: scale(1.05);
+}
+
+/* Tarjetas de opciones */
+.option-card {
+  padding: 1rem;
+  border-radius: 0.5rem;
+  border: 2px solid #e5e7eb;
+  background: white;
+  transition: all 0.2s;
+  cursor: pointer;
+  text-align: left;
+  width: 100%;
+}
+
+.option-card:hover {
+  border-color: #9ca3af;
+  background-color: #f9fafb;
+}
+
+.option-card.active {
+  border-color: #3b82f6;
+  background-color: #dbeafe;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+}
+
+/* Toggle Switch CORREGIDO */
+.toggle-switch {
+  position: relative;
+  display: inline-flex;
+  height: 1.5rem;
+  width: 2.75rem;
+  align-items: center;
+  border-radius: 9999px;
+  background-color: #d1d5db;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.toggle-switch input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.toggle-slider {
+  position: absolute;
+  height: 1rem;
+  width: 1rem;
+  border-radius: 9999px;
+  background-color: white;
+  transition: transform 0.3s;
+  left: 0.25rem;
+}
+
+.toggle-switch input:checked {
+  background-color: #10b981;
+}
+
+.toggle-switch input:checked + .toggle-slider {
+  transform: translateX(1.25rem);
+}
+
+/* Toggle pequeño para preview */
+.toggle-switch.small {
+  height: 1rem;
+  width: 2rem;
+}
+
+.toggle-switch.small .toggle-slider {
+  height: 0.75rem;
+  width: 0.75rem;
+}
+
+.toggle-switch.small input:checked + .toggle-slider {
+  transform: translateX(1rem);
+}
+
+/* Elementos del Preview */
+.preview-nav-btn {
+  transition: all 0.3s;
+  font-weight: 500;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  border: none;
+  cursor: pointer;
+}
+
+.preview-btn {
+  transition: all 0.3s;
+  font-weight: 500;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  border: none;
+  cursor: pointer;
+}
+
+.preview-badge {
+  transition: all 0.3s;
+  font-size: 0.75rem;
+  font-weight: 500;
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+}
+
+/* Grid responsivo */
+.settings-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+}
+
+@media (min-width: 1024px) {
+  .settings-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1280px) {
+  .settings-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* Información del sistema */
+.info-card {
+  background-color: #dbeafe;
+  border-radius: 1rem;
+  box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+  padding: 1.5rem;
+  border: 1px solid #93c5fd;
+  margin-top: 2rem;
+}
+
+/* Utilidades para texto */
+.text-gradient {
+  background: linear-gradient(135deg, #d97706 0%, #ea580c 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Mejoras para móviles */
+@media (max-width: 768px) {
+  .preview-master-container {
+    padding: 1rem;
+  }
+  
+  .preview-nav-btn {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.875rem;
+  }
+  
+  .config-card {
+    padding: 1rem;
+  }
+  
+  .settings-header {
+    padding: 1rem;
+  }
+  
+  .btn-amber,
+  .btn-primary {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.75rem;
+  }
+}
+
+/* Estados de focus para accesibilidad */
+button:focus {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}

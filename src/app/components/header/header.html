@@ -1,0 +1,123 @@
+<header class="bg-gradient-to-r from-orange-50 to-amber-50 shadow-xl border-b border-orange-200/40 backdrop-blur-sm">
+  <div class="px-8 h-20 flex items-center justify-between">
+    
+    <!-- Logo y botón hamburguesa -->
+    <div class="flex items-center space-x-4">
+      <!-- Botón Hamburguesa Mejorado -->
+      <button 
+        (click)="toggleSidebar()"
+        class="w-12 h-12 rounded-2xl flex items-center justify-center bg-white/80 hover:bg-white 
+               transition-all duration-300 shadow-lg hover:shadow-xl border border-orange-200/30 
+               text-amber-700 hover:text-amber-900 group animate-fade-in"
+        [title]="isSidebarOpen ? 'Cerrar menú' : 'Abrir menú'">
+        <span class="text-xl transition-transform duration-300 group-hover:scale-110" 
+              [class.rotate-90]="isSidebarOpen">
+          ☰
+        </span>
+      </button>
+      
+      <!-- Logo Mejorado -->
+      <div class="flex items-center space-x-4">
+        <div class="w-10 h-10 bg-gradient-to-r from-amber-400 to-amber-500 rounded-2xl flex items-center justify-center shadow-lg">
+          <span class="text-white font-bold text-lg">📚</span>
+        </div>
+        <div>
+          <h1 class="text-2xl font-bold bg-gradient-to-r from-amber-600 to-amber-700 bg-clip-text text-transparent">
+            BibliotecaPro
+          </h1>
+          <p class="text-amber-700/70 text-sm">Sistema de gestión bibliotecaria</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- User Menu Mejorado -->
+    <div class="flex items-center space-x-4">
+      
+
+      <!-- User Menu -->
+      <div class="relative">
+        <button 
+          (click)="toggleUserMenu()"
+          class="flex items-center space-x-3 p-2 rounded-2xl bg-white/80 hover:bg-white 
+                 transition-all duration-300 shadow-lg hover:shadow-xl border border-orange-200/30 
+                 group animate-fade-in delay-100">
+          <div class="w-10 h-10 bg-gradient-to-r from-amber-400 to-amber-500 rounded-2xl 
+                     flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
+            <span class="text-white font-bold text-sm">{{ getUserInitial() }}</span>
+          </div>
+          <div class="text-left hidden lg:block">
+            <p class="text-sm font-semibold text-amber-900">{{ getUserName() }}</p>
+            <p class="text-xs text-amber-700/70">{{ getUserRole() }}</p>
+          </div>
+          <span class="text-amber-500 transition-transform duration-300" 
+                [class.rotate-180]="showUserMenu">▼</span>
+        </button>
+        
+        <!-- Dropdown User Menu Mejorado -->
+        <div *ngIf="showUserMenu" 
+             class="absolute right-0 top-16 w-64 bg-white rounded-2xl shadow-2xl border border-orange-200/40 
+                    z-50 backdrop-blur-lg animate-slide-down overflow-hidden">
+          
+          <!-- Header del dropdown -->
+          <div class="p-4 border-b border-orange-200/30 bg-gradient-to-r from-orange-50 to-amber-50">
+            <div class="flex items-center space-x-3">
+              <div class="w-12 h-12 bg-gradient-to-r from-amber-400 to-amber-500 rounded-2xl 
+                         flex items-center justify-center shadow-lg">
+                <span class="text-white font-bold text-sm">{{ getUserInitial() }}</span>
+              </div>
+              <div class="flex-1 min-w-0">
+                <p class="text-sm font-semibold text-amber-900 truncate">{{ getUserName() }}</p>
+                <p class="text-xs text-amber-700/70 truncate">{{ getUserEmail() }}</p>
+                <div class="flex items-center space-x-1 mt-1">
+                  <div class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                  <span class="text-xs text-amber-600 font-medium">{{ getUserRole() }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Opciones del menú -->
+          <div class="p-2">
+            <a 
+              (click)="verPerfil(); showUserMenu = false"
+              class="flex items-center px-4 py-3 text-amber-900 hover:bg-amber-50 rounded-xl 
+                     transition-all duration-300 group cursor-pointer animate-fade-in-row">
+              <span class="w-8 h-8 bg-amber-100 rounded-lg flex items-center justify-center 
+                         text-amber-600 mr-3 group-hover:scale-110 transition-transform duration-300">👤</span>
+              <span class="font-medium flex-1">Mi Perfil</span>
+              <span class="text-amber-400 group-hover:text-amber-600 transition-colors duration-300">→</span>
+            </a>
+            
+            <a 
+              (click)="irConfiguracion(); showUserMenu = false"
+              class="flex items-center px-4 py-3 text-amber-900 hover:bg-amber-50 rounded-xl 
+                     transition-all duration-300 group cursor-pointer animate-fade-in-row"
+              [style.animation-delay]="'0.1s'">
+              <span class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center 
+                         text-blue-600 mr-3 group-hover:scale-110 transition-transform duration-300">⚙️</span>
+              <span class="font-medium flex-1">Configuración</span>
+              <span class="text-blue-400 group-hover:text-blue-600 transition-colors duration-300">→</span>
+            </a>
+
+            <!-- Separador -->
+            <div class="border-t border-orange-200/30 my-2"></div>
+            
+            <!-- Cerrar Sesión -->
+            <button 
+              (click)="logout()"
+              class="w-full flex items-center px-4 py-3 text-red-600 hover:bg-red-50 rounded-xl 
+                     transition-all duration-300 group cursor-pointer animate-fade-in-row"
+              [style.animation-delay]="'0.3s'">
+              <span class="w-8 h-8 bg-red-100 rounded-lg flex items-center justify-center 
+                         text-red-600 mr-3 group-hover:scale-110 transition-transform duration-300">🚪</span>
+              <span class="font-medium flex-1">Cerrar Sesión</span>
+              <span class="text-red-400 group-hover:text-red-600 transition-colors duration-300">→</span>
+            </button>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>

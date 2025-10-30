@@ -1,0 +1,662 @@
+<div class="min-h-screen bg-gradient-to-br from-orange-50 to-amber-50 font-inter">
+  <div class="max-w-7xl mx-auto p-6">
+    <!-- Header -->
+    <header
+      class="bg-white rounded-2xl p-8 mb-8 shadow-xl border border-orange-200/40 backdrop-blur-xl animate-slide-down"
+    >
+      <div class="flex justify-between items-center">
+        <div>
+          <h1
+            class="text-3xl font-bold bg-gradient-to-r from-amber-600 to-amber-700 bg-clip-text text-transparent mb-2"
+          >
+            👥 Gestión de Usuarios
+          </h1>
+          <p class="text-amber-800/70 text-lg">Administra los usuarios de la biblioteca</p>
+        </div>
+        <button
+          class="bg-gradient-to-r from-amber-200 to-amber-400 text-white px-6 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 flex items-center gap-2 relative overflow-hidden group"
+          (click)="abrirModalNuevoUsuario()"
+          *ngIf="puedeCrear()"
+        >
+          <span class="relative z-10">➕</span>
+          <span class="relative z-10">Nuevo Usuario</span>
+          <div
+            class="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-500"
+          ></div>
+        </button>
+      </div>
+    </header>
+
+    <!-- Estados de carga -->
+    <div
+      *ngIf="cargando"
+      class="bg-white rounded-2xl p-10 text-center mb-6 shadow-lg border border-orange-200/30 animate-fade-in"
+    >
+      <div
+        class="w-12 h-12 border-3 border-orange-200 border-t-amber-500 rounded-full animate-spin mx-auto mb-4"
+      ></div>
+      <p class="text-amber-800/70">Cargando usuarios...</p>
+    </div>
+
+    <!-- Estados de error -->
+    <div
+      *ngIf="error && !cargando"
+      class="bg-white rounded-2xl p-10 text-center mb-6 shadow-lg border border-orange-200/30 animate-fade-in"
+    >
+      <div class="text-4xl mb-4">⚠️</div>
+      <h3 class="text-red-600 font-semibold mb-2">Error</h3>
+      <p class="text-amber-800/70 mb-4">{{ error }}</p>
+      <button
+        class="bg-orange-100 text-amber-900 px-5 py-2.5 rounded-lg font-medium border border-orange-200 hover:bg-orange-200 transition-all duration-300 flex items-center gap-2 mx-auto"
+        (click)="cargarUsuariosReales()"
+      >
+        <span>🔄</span>
+        Reintentar
+      </button>
+    </div>
+
+    <!-- Filtros y Búsqueda -->
+    <section
+      *ngIf="!cargando && usuarios.length > 0"
+      class="bg-white rounded-2xl p-6 mb-6 shadow-lg border border-orange-200/30 animate-slide-up"
+    >
+      <div class="relative max-w-md mb-4">
+        <div class="absolute left-4 top-1/2 transform -translate-y-1/2 text-amber-700/70">🔍</div>
+        <input
+          type="text"
+          placeholder="Buscar por nombre o email..."
+          [(ngModel)]="terminoBusqueda"
+          (input)="filtrarUsuarios()"
+          class="w-full pl-12 pr-4 py-3 border border-orange-200/30 rounded-xl bg-orange-50/50 focus:outline-none focus:border-amber-500 focus:ring-4 focus:ring-amber-100 transition-all duration-300"
+        />
+      </div>
+
+      <div class="flex gap-3 items-center flex-wrap">
+        <select
+          [(ngModel)]="filtroRol"
+          (change)="filtrarUsuarios()"
+          class="px-4 py-2.5 border border-orange-200/30 rounded-lg bg-orange-50/50 text-amber-900 focus:outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-100 transition-all duration-300"
+        >
+          <option value="">Todos los roles</option>
+          <option value="administrativo">Administrativo</option>
+          <option value="bibliotecario">Bibliotecario</option>
+          <option value="usuario">Usuario</option>
+        </select>
+
+        <button
+          class="bg-orange-100 text-amber-900 px-5 py-2.5 rounded-lg font-medium border border-orange-200 hover:bg-orange-200 transition-all duration-300 flex items-center gap-2"
+          (click)="limpiarFiltros()"
+        >
+          <span>🔄</span>
+          Limpiar Filtros
+        </button>
+      </div>
+    </section>
+
+    <!-- Estadísticas -->
+    <section
+      *ngIf="!cargando && usuarios.length > 0"
+      class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 mb-8 animate-slide-up delay-100"
+    >
+      <!-- ... (las tarjetas de estadísticas se mantienen igual) -->
+      <div
+        class="bg-white p-6 rounded-2xl shadow-lg border border-orange-200/30 hover:-translate-y-1 transition-all duration-300 group relative overflow-hidden"
+      >
+        <div
+          class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-200 to-amber-400 scale-x-0 group-hover:scale-x-100 transition-transform duration-300"
+        ></div>
+        <div class="flex items-center gap-4">
+          <div
+            class="w-14 h-14 bg-amber-100 rounded-xl flex items-center justify-center text-2xl group-hover:scale-110 transition-transform duration-300"
+          >
+            👥
+          </div>
+          <div>
+            <h3 class="text-2xl font-bold text-amber-900">{{ usuarios.length }}</h3>
+            <p class="text-amber-700/70 text-sm">Total Usuarios</p>
+          </div>
+        </div>
+      </div>
+
+      <div
+        class="bg-white p-6 rounded-2xl shadow-lg border border-orange-200/30 hover:-translate-y-1 transition-all duration-300 group relative overflow-hidden"
+      >
+        <div
+          class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-200 to-amber-400 scale-x-0 group-hover:scale-x-100 transition-transform duration-300"
+        ></div>
+        <div class="flex items-center gap-4">
+          <div
+            class="w-14 h-14 bg-green-50 rounded-xl flex items-center justify-center text-2xl group-hover:scale-110 transition-transform duration-300"
+          >
+            👑
+          </div>
+          <div>
+            <h3 class="text-2xl font-bold text-amber-900">
+              {{ contarUsuariosPorRol('administrativo') }}
+            </h3>
+            <p class="text-amber-700/70 text-sm">Administrativos</p>
+          </div>
+        </div>
+      </div>
+
+      <div
+        class="bg-white p-6 rounded-2xl shadow-lg border border-orange-200/30 hover:-translate-y-1 transition-all duration-300 group relative overflow-hidden"
+      >
+        <div
+          class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-200 to-amber-400 scale-x-0 group-hover:scale-x-100 transition-transform duration-300"
+        ></div>
+        <div class="flex items-center gap-4">
+          <div
+            class="w-14 h-14 bg-orange-50 rounded-xl flex items-center justify-center text-2xl group-hover:scale-110 transition-transform duration-300"
+          >
+            📚
+          </div>
+          <div>
+            <h3 class="text-2xl font-bold text-amber-900">
+              {{ contarUsuariosPorRol('bibliotecario') }}
+            </h3>
+            <p class="text-amber-700/70 text-sm">Bibliotecarios</p>
+          </div>
+        </div>
+      </div>
+
+      <div
+        class="bg-white p-6 rounded-2xl shadow-lg border border-orange-200/30 hover:-translate-y-1 transition-all duration-300 group relative overflow-hidden"
+      >
+        <div
+          class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-200 to-amber-400 scale-x-0 group-hover:scale-x-100 transition-transform duration-300"
+        ></div>
+        <div class="flex items-center gap-4">
+          <div
+            class="w-14 h-14 bg-blue-50 rounded-xl flex items-center justify-center text-2xl group-hover:scale-110 transition-transform duration-300"
+          >
+            🆕
+          </div>
+          <div>
+            <h3 class="text-2xl font-bold text-amber-900">{{ contarUsuariosNuevos() }}</h3>
+            <p class="text-amber-700/70 text-sm">Nuevos (7 días)</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Tabla de Usuarios -->
+    <section
+      *ngIf="!cargando"
+      class="bg-white rounded-2xl p-8 shadow-xl border border-orange-200/30 animate-slide-up delay-200"
+    >
+      <div class="flex justify-between items-center mb-6">
+        <h2 class="text-xl font-semibold text-amber-900">Lista de Usuarios</h2>
+        <div class="flex items-center gap-4">
+          <span class="text-amber-700/70 text-sm">
+            Mostrando {{ usuariosFiltrados.length }} de {{ usuarios.length }} usuarios
+          </span>
+          <button
+            class="bg-orange-100 text-amber-900 px-5 py-2.5 rounded-lg font-medium border border-orange-200 hover:bg-orange-200 transition-all duration-300 flex items-center gap-2"
+            (click)="cargarUsuariosReales()"
+            title="Recargar usuarios"
+          >
+            <span>🔄</span>
+            Actualizar
+          </button>
+        </div>
+      </div>
+
+      <div class="overflow-x-auto rounded-xl border border-orange-200/30 bg-white">
+        <table class="w-full min-w-[800px] bg-white" *ngIf="usuariosFiltrados.length > 0">
+          <thead>
+            <tr>
+              <th
+                class="bg-orange-50/50 px-4 py-4 text-left font-semibold text-amber-900 border-b border-orange-200/30 cursor-pointer hover:bg-orange-100/50 transition-colors duration-200"
+                (click)="ordenarPor('nombre')"
+              >
+                <div class="flex items-center gap-2">
+                  Usuario
+                  <span *ngIf="campoOrden === 'nombre'" class="font-bold">
+                    {{ direccionOrden === 'asc' ? '↑' : '↓' }}
+                  </span>
+                </div>
+              </th>
+              <th
+                class="bg-orange-50/50 px-4 py-4 text-left font-semibold text-amber-900 border-b border-orange-200/30 cursor-pointer hover:bg-orange-100/50 transition-colors duration-200"
+                (click)="ordenarPor('email')"
+              >
+                <div class="flex items-center gap-2">
+                  Email
+                  <span *ngIf="campoOrden === 'email'" class="font-bold">
+                    {{ direccionOrden === 'asc' ? '↑' : '↓' }}
+                  </span>
+                </div>
+              </th>
+              <th
+                class="bg-orange-50/50 px-4 py-4 text-left font-semibold text-amber-900 border-b border-orange-200/30 cursor-pointer hover:bg-orange-100/50 transition-colors duration-200"
+                (click)="ordenarPor('rol')"
+              >
+                <div class="flex items-center gap-2">
+                  Rol
+                  <span *ngIf="campoOrden === 'rol'" class="font-bold">
+                    {{ direccionOrden === 'asc' ? '↑' : '↓' }}
+                  </span>
+                </div>
+              </th>
+              <th
+                class="bg-orange-50/50 px-4 py-4 text-left font-semibold text-amber-900 border-b border-orange-200/30 cursor-pointer hover:bg-orange-100/50 transition-colors duration-200"
+                (click)="ordenarPor('fechaRegistro')"
+              >
+                <div class="flex items-center gap-2">
+                  Fecha Registro
+                  <span *ngIf="campoOrden === 'fechaRegistro'" class="font-bold">
+                    {{ direccionOrden === 'asc' ? '↑' : '↓' }}
+                  </span>
+                </div>
+              </th>
+              <th
+                class="bg-orange-50/50 px-4 py-4 text-left font-semibold text-amber-900 border-b border-orange-200/30"
+              >
+                Acciones
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr
+              *ngFor="let usuario of usuariosFiltrados"
+              [class]="
+                usuarioSeleccionado === usuario
+                  ? 'bg-orange-50 border-l-4 border-amber-500'
+                  : 'hover:bg-orange-50/30 transition-all duration-200 hover:translate-x-1'
+              "
+              (click)="seleccionarUsuario(usuario)"
+              class="cursor-pointer animate-fade-in-row"
+            >
+              <td class="px-4 py-4 border-b border-orange-200/20">
+                <div class="flex items-center gap-3">
+                  <div
+                    class="w-10 h-10 rounded-full border-2 border-amber-200 overflow-hidden transition-all duration-300 hover:border-amber-400"
+                  >
+                    <img
+                      [src]="getSafeImageUrl(usuario)"
+                      [alt]="usuario.nombre"
+                      class="w-full h-full object-cover transition-transform duration-300 hover:scale-110"
+                      (error)="usuario.imge_url = 'assets/default-avatar.png'"
+                    />
+                  </div>
+                  <div>
+                    <strong class="font-semibold text-amber-900 block">{{ usuario.nombre }}</strong>
+                    <span class="text-amber-700/70 text-xs">ID: {{ usuario.id }}</span>
+                  </div>
+                </div>
+              </td>
+              <td class="px-4 py-4 border-b border-orange-200/20 text-amber-900">
+                {{ usuario.email }}
+              </td>
+              <td class="px-4 py-4 border-b border-orange-200/20">
+                <span [class]="getRolBadgeClasses(usuario.rol)">
+                  {{ usuario.rol }}
+                </span>
+              </td>
+              <td class="px-4 py-4 border-b border-orange-200/20 text-amber-900">
+                {{ usuario.fechaRegistro | date : 'dd/MM/yyyy' }}
+              </td>
+              <td class="px-4 py-4 border-b border-orange-200/20">
+                <div class="flex gap-2">
+                  <button
+                    class="bg-orange-50 text-amber-900 px-3 py-2 rounded-lg border border-orange-200 hover:bg-blue-50 hover:border-blue-300 hover:text-blue-600 transition-all duration-300 flex items-center gap-1 text-sm"
+                    (click)="editarUsuario(usuario); $event.stopPropagation()"
+                    title="Editar usuario"
+                    *ngIf="puedeEditar()"
+                  >
+                    <span>✏️</span>
+                    <span class="hidden sm:inline">Editar</span>
+                  </button>
+                  <button
+                    class="bg-orange-50 text-amber-900 px-3 py-2 rounded-lg border border-orange-200 hover:bg-red-50 hover:border-red-300 hover:text-red-600 transition-all duration-300 flex items-center gap-1 text-sm"
+                    (click)="abrirModalConfirmacionEliminar(usuario); $event.stopPropagation()"
+                    title="Eliminar usuario"
+                    *ngIf="puedeEliminar()"
+                  >
+                    <span>🗑️</span>
+                    <span class="hidden sm:inline">Eliminar</span>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <!-- Estado vacío -->
+        <div
+          *ngIf="usuariosFiltrados.length === 0 && !cargando"
+          class="text-center py-16 text-amber-700/70 animate-fade-in"
+        >
+          <div class="text-6xl mb-4 opacity-50 animate-bounce">👥</div>
+          <h3 class="text-xl font-semibold text-amber-900 mb-2">No se encontraron usuarios</h3>
+          <p class="mb-6" *ngIf="usuarios.length === 0">
+            No hay usuarios registrados en el sistema
+          </p>
+          <p class="mb-6" *ngIf="usuarios.length > 0">Intenta ajustar los filtros de búsqueda</p>
+          <div class="flex gap-3 justify-center flex-wrap">
+            <button
+              class="bg-orange-100 text-amber-900 px-5 py-2.5 rounded-lg font-medium border border-orange-200 hover:bg-orange-200 transition-all duration-300 flex items-center gap-2"
+              (click)="limpiarFiltros()"
+              *ngIf="usuarios.length > 0"
+            >
+              <span>🔄</span>
+              Limpiar filtros
+            </button>
+            <button
+              class="bg-gradient-to-r from-amber-200 to-amber-400 text-white px-6 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 flex items-center gap-2"
+              (click)="abrirModalNuevoUsuario()"
+              *ngIf="puedeCrear()"
+            >
+              <span>➕</span>
+              Crear primer usuario
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Paginación -->
+      <div
+        *ngIf="usuariosFiltrados.length > 0 && !cargando"
+        class="flex justify-between items-center mt-6 py-4 animate-fade-in"
+      >
+        <div class="text-amber-700/70 text-sm">Página {{ paginaActual }} de {{ totalPaginas }}</div>
+        <div class="flex items-center gap-3">
+          <button
+            class="bg-orange-100 text-amber-900 px-4 py-2 rounded-lg border border-orange-200 hover:bg-orange-200 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+            [disabled]="paginaActual === 1"
+            (click)="cambiarPagina(paginaActual - 1)"
+          >
+            ← Anterior
+          </button>
+
+          <div class="flex gap-1">
+            <span
+              *ngFor="let pagina of obtenerRangoPaginas()"
+              [class]="
+                pagina === paginaActual
+                  ? 'bg-amber-500 text-white px-3 py-2 rounded-lg shadow-lg'
+                  : 'bg-orange-50 text-amber-900 px-3 py-2 rounded-lg cursor-pointer hover:bg-orange-100 transition-colors duration-200'
+              "
+              (click)="cambiarPagina(pagina)"
+              class="min-w-10 text-center font-medium"
+            >
+              {{ pagina }}
+            </span>
+          </div>
+
+          <button
+            class="bg-orange-100 text-amber-900 px-4 py-2 rounded-lg border border-orange-200 hover:bg-orange-200 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+            [disabled]="paginaActual === totalPaginas"
+            (click)="cambiarPagina(paginaActual + 1)"
+          >
+            Siguiente →
+          </button>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>
+
+<!-- Modal de Usuario - MEJORADO -->
+<div
+  class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 backdrop-blur-sm animate-fade-in modal-persistent"
+  *ngIf="mostrarModal"
+  (click)="cerrarModal()"
+>
+  <div
+    class="bg-white rounded-2xl w-full max-w-md max-h-[90vh] overflow-hidden shadow-2xl border border-orange-200/40 animate-slide-up mx-4 modal-content"
+    (click)="$event.stopPropagation()"
+  >
+    <div
+      class="flex justify-between items-center p-6 border-b border-orange-200/30 bg-orange-50/30"
+    >
+      <h2 class="text-xl font-semibold text-amber-900">
+        {{ usuarioEditando ? 'Editar Usuario' : 'Nuevo Usuario' }}
+      </h2>
+      <button
+        class="w-8 h-8 rounded-full flex items-center justify-center text-amber-700/70 hover:bg-orange-100 hover:text-amber-900 transition-all duration-300 disabled:opacity-50"
+        (click)="cerrarModal()"
+        [disabled]="guardando"
+      >
+        ×
+      </button>
+    </div>
+
+    <form class="flex flex-col h-full" (ngSubmit)="guardarUsuario()" #userForm="ngForm">
+      <div
+        class="p-6 flex-1 relative"
+        [class.opacity-60]="guardando"
+        [class.pointer-events-none]="guardando"
+      >
+        <!-- Overlay de loading -->
+        <div
+          *ngIf="guardando"
+          class="absolute inset-0 bg-white/90 rounded-2xl flex flex-col items-center justify-center z-10"
+        >
+          <div
+            class="w-10 h-10 border-3 border-orange-200 border-t-amber-500 rounded-full animate-spin mb-4"
+          ></div>
+          <p class="text-amber-700/70">
+            {{ usuarioEditando ? 'Actualizando usuario...' : 'Creando usuario...' }}
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+          <div class="flex flex-col">
+            <label for="nombre" class="font-medium text-amber-900 text-sm mb-2"
+              >Nombre completo *</label
+            >
+            <input
+              type="text"
+              id="nombre"
+              [(ngModel)]="nuevoUsuario.nombre"
+              name="nombre"
+              required
+              class="px-4 py-3 border border-orange-200/30 rounded-xl bg-orange-50/50 focus:outline-none focus:border-amber-500 focus:ring-4 focus:ring-amber-100 transition-all duration-300 disabled:opacity-60"
+              placeholder="Ej: María Rodríguez"
+              [disabled]="guardando"
+            />
+            <div
+              *ngIf="userForm.submitted && !nuevoUsuario.nombre"
+              class="text-red-500 text-xs mt-1 flex items-center gap-1"
+            >
+              ⚠️ El nombre es obligatorio
+            </div>
+          </div>
+
+          <div class="flex flex-col">
+            <label for="email" class="font-medium text-amber-900 text-sm mb-2">Email *</label>
+            <input
+              type="email"
+              id="email"
+              [(ngModel)]="nuevoUsuario.email"
+              name="email"
+              required
+              class="px-4 py-3 border border-orange-200/30 rounded-xl bg-orange-50/50 focus:outline-none focus:border-amber-500 focus:ring-4 focus:ring-amber-100 transition-all duration-300 disabled:opacity-60"
+              placeholder="Ej: usuario@email.com"
+              [disabled]="guardando"
+            />
+            <div
+              *ngIf="userForm.submitted && !nuevoUsuario.email"
+              class="text-red-500 text-xs mt-1 flex items-center gap-1"
+            >
+              ⚠️ El email es obligatorio
+            </div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+          <div class="flex flex-col" *ngIf="!usuarioEditando">
+            <label for="password" class="font-medium text-amber-900 text-sm mb-2"
+              >Contraseña *</label
+            >
+            <input
+              type="password"
+              id="password"
+              [(ngModel)]="nuevoUsuario.password"
+              name="password"
+              required
+              minlength="6"
+              class="px-4 py-3 border border-orange-200/30 rounded-xl bg-orange-50/50 focus:outline-none focus:border-amber-500 focus:ring-4 focus:ring-amber-100 transition-all duration-300 disabled:opacity-60"
+              placeholder="Mínimo 6 caracteres"
+              [disabled]="guardando"
+            />
+            <div
+              *ngIf="userForm.submitted && !nuevoUsuario.password"
+              class="text-red-500 text-xs mt-1 flex items-center gap-1"
+            >
+              ⚠️ La contraseña es obligatoria
+            </div>
+            <div
+              *ngIf="
+                userForm.submitted && nuevoUsuario.password && nuevoUsuario.password.length < 6
+              "
+              class="text-red-500 text-xs mt-1 flex items-center gap-1"
+            >
+              ⚠️ La contraseña debe tener al menos 6 caracteres
+            </div>
+          </div>
+
+          <div class="flex flex-col">
+            <label for="rol" class="font-medium text-amber-900 text-sm mb-2">Rol *</label>
+            <select
+              id="rol"
+              [(ngModel)]="nuevoUsuario.rol"
+              name="rol"
+              required
+              class="px-4 py-3 border border-orange-200/30 rounded-xl bg-orange-50/50 focus:outline-none focus:border-amber-500 focus:ring-4 focus:ring-amber-100 transition-all duration-300 disabled:opacity-60"
+              [disabled]="guardando"
+            >
+              <option value="usuario">Usuario</option>
+              <option value="bibliotecario">Bibliotecario</option>
+              <option value="administrativo">Administrativo</option>
+            </select>
+            <div
+              *ngIf="userForm.submitted && !nuevoUsuario.rol"
+              class="text-red-500 text-xs mt-1 flex items-center gap-1"
+            >
+              ⚠️ El rol es obligatorio
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-orange-50/50 rounded-xl p-4 mt-4">
+          <p class="text-amber-700/70 text-sm mb-1">
+            📝 Los campos marcados con * son obligatorios
+          </p>
+          <p *ngIf="usuarioEditando" class="text-amber-700/70 text-sm">
+            🔒 La contraseña no se muestra por seguridad
+          </p>
+        </div>
+
+        <!-- Mensaje de error del formulario -->
+        <div
+          *ngIf="error"
+          class="bg-red-50 border border-red-200 rounded-xl p-4 mt-4 flex items-center gap-2 text-red-700 animate-shake"
+        >
+          <div class="text-lg">⚠️</div>
+          <span class="text-sm">{{ error }}</span>
+        </div>
+      </div>
+
+      <div class="flex gap-3 justify-end p-6 border-t border-orange-200/30 bg-orange-50/30">
+        <button
+          type="button"
+          class="bg-orange-100 text-amber-900 px-6 py-3 rounded-xl font-medium border border-orange-200 hover:bg-orange-200 transition-all duration-300 disabled:opacity-50"
+          (click)="cerrarModal()"
+          [disabled]="guardando"
+        >
+          Cancelar
+        </button>
+        <button
+          type="submit"
+          class="bg-gradient-to-r from-amber-200 to-amber-400 text-white px-6 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 disabled:opacity-50 flex items-center gap-2 min-w-32 justify-center"
+          [disabled]="guardando"
+        >
+          <span *ngIf="guardando" class="flex items-center gap-2">
+            <div
+              class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"
+            ></div>
+            {{ usuarioEditando ? 'Actualizando...' : 'Creando...' }}
+          </span>
+          <span *ngIf="!guardando">
+            {{ usuarioEditando ? 'Actualizar Usuario' : 'Crear Usuario' }}
+          </span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Modal de Confirmación para Eliminar -->
+<div
+  class="fixed inset-0 bg-black/50 flex items-center justify-center z-[60] backdrop-blur-sm animate-fade-in"
+  *ngIf="mostrarModalConfirmacion"
+  (click)="cerrarModalConfirmacion()"
+>
+  <div
+    class="bg-white rounded-2xl w-full max-w-md overflow-hidden shadow-2xl border border-orange-200/40 animate-slide-up mx-4"
+    (click)="$event.stopPropagation()"
+  >
+    <div
+      class="flex justify-between items-center p-6 border-b border-orange-200/30 bg-orange-50/30"
+    >
+      <h2 class="text-xl font-semibold text-amber-900">Confirmar Eliminación</h2>
+      <button
+        class="w-8 h-8 rounded-full flex items-center justify-center text-amber-700/70 hover:bg-orange-100 hover:text-amber-900 transition-all duration-300"
+        (click)="cerrarModalConfirmacion()"
+      >
+        ×
+      </button>
+    </div>
+
+    <div class="p-6">
+      <div class="text-center mb-6">
+        <div class="text-5xl mb-4 text-red-500">⚠️</div>
+        <h3 class="text-lg font-semibold text-amber-900 mb-2">
+          ¿Estás seguro de que quieres eliminar a
+          <span class="text-amber-700">{{ usuarioAEliminar?.nombre }}</span
+          >?
+        </h3>
+        <p class="text-amber-700/70">
+          Esta acción no se puede deshacer. El usuario será eliminado permanentemente del sistema.
+        </p>
+      </div>
+
+      <div class="bg-red-50 border border-red-200 rounded-xl p-4 mb-4">
+        <div class="flex items-start gap-3">
+          <div class="text-red-500 mt-0.5">🗑️</div>
+          <div>
+            <p class="text-red-700 font-medium text-sm">Información del usuario a eliminar:</p>
+            <p class="text-red-600 text-sm mt-1">
+              <strong>Nombre:</strong> {{ usuarioAEliminar?.nombre }}
+            </p>
+            <p class="text-red-600 text-sm">
+              <strong>Email:</strong> {{ usuarioAEliminar?.email }}
+            </p>
+            <p class="text-red-600 text-sm"><strong>Rol:</strong> {{ usuarioAEliminar?.rol }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="flex gap-3 justify-end p-6 border-t border-orange-200/30 bg-orange-50/30">
+      <button
+        type="button"
+        class="bg-orange-100 text-amber-900 px-6 py-3 rounded-xl font-medium border border-orange-200 hover:bg-orange-200 transition-all duration-300"
+        (click)="cerrarModalConfirmacion()"
+      >
+        Cancelar
+      </button>
+      <button
+        type="button"
+        class="bg-gradient-to-r from-red-500 to-red-600 text-white px-6 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 flex items-center gap-2"
+        (click)="confirmarEliminarUsuario()"
+      >
+        <span>🗑️</span>
+        Sí, Eliminar Usuario
+      </button>
+    </div>
+  </div>
+</div>

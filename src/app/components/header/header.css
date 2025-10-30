@@ -1,0 +1,48 @@
+/* header.css - SOLO ANIMACIONES */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Mismas animaciones que los otros componentes */
+@keyframes slide-down {
+  from {
+    opacity: 0;
+    transform: translateY(-10px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes fade-in-row {
+  from {
+    opacity: 0;
+    transform: translateX(-5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.animate-slide-down {
+  animation: slide-down 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+}
+
+.animate-fade-in {
+  animation: fade-in 0.5s ease;
+}
+
+.animate-fade-in-row {
+  animation: fade-in-row 0.4s ease forwards;
+}
+
+.delay-100 {
+  animation-delay: 0.1s;
+}
