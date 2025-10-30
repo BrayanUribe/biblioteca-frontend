@@ -1,59 +1,81 @@
-# FrontedBiblioteca
+# 📚 Biblioteca Frontend
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 20.3.3.
+Este es el **frontend del sistema de gestión de biblioteca**, desarrollado con **Angular** y **TypeScript**.  
+Forma parte de una aplicación completa para la administración de **usuarios, libros, autores y préstamos**, con autenticación y control de acceso por rutas protegidas.
 
-## Development server
+---
 
-To start a local development server, run:
+## 🚀 Descripción general
 
-```bash
+La aplicación permite gestionar todos los procesos de una biblioteca de manera digital:
+
+- 👤 **Gestión de usuarios:** creación, edición, activación/desactivación y eliminación.  
+- 📚 **Gestión de libros:** CRUD completo con imágenes, sinopsis y disponibilidad.  
+- ✍️ **Gestión de autores:** listado, creación y visualización de los libros de cada autor.  
+- 📖 **Gestión de préstamos:** solicitud, seguimiento y registro de préstamos activos.  
+- 🔒 **Autenticación:** login con JWT y protección de rutas según el estado del usuario.  
+- 🌗 **Modo claro/oscuro:** interfaz moderna, limpia y adaptable.
+
+---
+
+## 🧰 Tecnologías utilizadas
+
+- **Angular CLI**  
+- **TypeScript**  
+- **HTML5 + SCSS / TailwindCSS**  
+- **RxJS**  
+- **JWT (para autenticación)**  
+- **Git / GitHub**
+
+---
+
+## ⚙️ Instalación y ejecución
+
+1. Clona este repositorio:
+
+   ```bash
+   git clone https://github.com/BrayanUribe/biblioteca-frontend.git
+   cd biblioteca-frontend
+Instala las dependencias:
+
+bash
+Copiar código
+npm install
+Inicia el servidor local:
+
+bash
+Copiar código
 ng serve
-```
+Abre el navegador y entra a 👉 http://localhost:4200
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+🧩 Estructura general del proyecto
+bash
+Copiar código
+src/
+ ├── app/
+ │   ├── components/     # Componentes principales del sistema
+ │   ├── pages/          # Vistas del sistema (Usuarios, Libros, Autores, etc.)
+ │   ├── services/       # Servicios para consumir la API REST
+ │   ├── guards/         # Protección de rutas
+ │   └── models/         # Interfaces y tipos de datos
+ ├── assets/             # Imágenes y recursos estáticos
+ ├── environments/       # Configuraciones de entorno
+ └── index.html          # Punto de entrada principal
+🔐 Autenticación y protección de rutas
 
-## Code scaffolding
+El sistema utiliza JWT (JSON Web Tokens) para autenticar a los usuarios.
+Solo los usuarios con sesión activa pueden acceder a las rutas protegidas, y el frontend valida los permisos antes de renderizar componentes sensibles.
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+🧑‍💻 Autor
+Brayan Uribe
+💼 Desarrollador Full Stack
+🌐 GitHub
 
-```bash
-ng generate component component-name
-```
+📝 Licencia
+Este proyecto fue desarrollado con fines académicos y puede ser utilizado o adaptado libremente con fines educativos o de práctica profesional.
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
 
-```bash
-ng generate --help
-```
 
-## Building
 
-To build the project run:
 
-```bash
-ng build
-```
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
-
-```bash
-ng test
-```
-
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
