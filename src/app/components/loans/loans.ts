@@ -13,7 +13,7 @@ interface Prestamo {
   fechaPrestamo: string;
   fechaVencimiento: string;
   fechaDevolucion: string | null;
-  estado: 'ACTIVE' | 'RETURNED' | 'OVERDUE';
+  estado: 'PENDING' |  'REJECTED' | 'ACTIVE' | 'RETURNED' | 'LATE';
   multa: number;
   loanItems: any[];
   userDTO?: any;
@@ -47,7 +47,7 @@ export class LoansComponent implements OnInit {
   busquedaLibro: string = '';
 
   terminoBusqueda: string = '';
-  filtroEstado: string = '';
+  filtroEstado: string = 'PENDING';
   filtroUsuario: string = '';
   filtroFecha: string = '';
 
@@ -81,6 +81,18 @@ export class LoansComponent implements OnInit {
     this.cargarPrestamosReales();
     this.cargarUsuarios();
     this.cargarLibros();
+    this.updateOverdueLoans();
+  }
+
+  updateOverdueLoans() {
+    this.loansService.updateOverdueLoans().subscribe({
+      next: (msg) => {
+        console.log('✅ Préstamos vencidos actualizados');
+      },
+      error: (err) => {
+        console.error('❌ Error al actualizar préstamos vencidos', err);
+      },
+    });
   }
 
   cargarUsuarios() {
@@ -89,7 +101,9 @@ export class LoansComponent implements OnInit {
         this.usuarios = users;
         this.usuariosFiltrados = [];
       },
-      error: (err) => {},
+      error: (err) => {
+        console.error('Error al cargar usuarios:', err);
+      },
     });
   }
 
@@ -99,7 +113,9 @@ export class LoansComponent implements OnInit {
         this.libros = books.filter((book) => book.available && book.stock > 0);
         this.librosFiltrados = [];
       },
-      error: (err) => {},
+      error: (err) => {
+        console.error('Error al cargar libros:', err);
+      },
     });
   }
 
@@ -177,27 +193,30 @@ export class LoansComponent implements OnInit {
     this.nuevoPrestamo.bookTitles.splice(index, 1);
   }
 
-public cargarPrestamosReales() {
-  this.cargando = true;
-  this.error = '';
-  this.loansService.getAllLoans().subscribe({
-    next: (loans) => {
-      this.prestamos = loans.map((loan) => this.mapearPrestamoBackend(loan));
-      
-      this.filtroEstado = 'ACTIVE';
-      this.filtrarPrestamos();
-      
-      this.cargando = false;
-    },
-    error: (err) => {
-      this.error =
-        'Error al cargar los préstamos: ' + (err.error?.message || 'Inténtalo de nuevo');
-      this.cargando = false;
-    },
-  });
-}
+  public cargarPrestamosReales() {
+    this.cargando = true;
+    this.error = '';
+    this.loansService.getAllLoans().subscribe({
+      next: (loans) => {
+        this.prestamos = loans.map((loan) => this.mapearPrestamoBackend(loan));
+        this.filtrarPrestamos();
+        this.cargando = false;
+      },
+      error: (err) => {
+        this.error =
+          'Error al cargar los préstamos: ' + (err.error?.message || 'Inténtalo de nuevo');
+        this.cargando = false;
+      },
+    });
+  }
 
   private mapearPrestamoBackend(loan: any): Prestamo {
+    // Mapear LATE correctamente
+    let estado: any = loan.status || 'PENDING';
+    if (estado === 'OVERDUE') {
+      estado = 'LATE';
+    }
+
     return {
       id: loan.id || 0,
       usuario: loan.userDTO?.name || 'Usuario desconocido',
@@ -206,7 +225,7 @@ public cargarPrestamosReales() {
       fechaPrestamo: loan.loanDate || new Date().toISOString(),
       fechaVencimiento: loan.dueDate || new Date().toISOString(),
       fechaDevolucion: loan.returnDate || null,
-      estado: loan.status || 'ACTIVE',
+      estado: estado,
       multa: loan.fine || 0,
       loanItems: loan.loanItems || [],
       userDTO: loan.userDTO,
@@ -223,115 +242,87 @@ public cargarPrestamosReales() {
     this.prestamoDetallado = null;
   }
 
-  filtrarPrestamos() {
-    let filtered = this.prestamos.filter((prestamo) => {
-      const coincideBusqueda =
-        !this.terminoBusqueda ||
-        prestamo.usuario.toLowerCase().includes(this.terminoBusqueda.toLowerCase()) ||
-        prestamo.libros.some(
-          (libro) =>
-            libro.bookId.toString().includes(this.terminoBusqueda) ||
-            libro.bookDTO?.title?.toLowerCase().includes(this.terminoBusqueda.toLowerCase()) ||
-            libro.bookDTO?.authorDTO?.name
-              ?.toLowerCase()
-              .includes(this.terminoBusqueda.toLowerCase())
-        );
+filtrarPrestamos() {
+  let filtered = this.prestamos.filter((prestamo) => {
+    const coincideBusqueda =
+      !this.terminoBusqueda ||
+      prestamo.usuario.toLowerCase().includes(this.terminoBusqueda.toLowerCase()) ||
+      prestamo.libros.some(
+        (libro) =>
+          libro.bookId.toString().includes(this.terminoBusqueda) ||
+          libro.bookDTO?.title?.toLowerCase().includes(this.terminoBusqueda.toLowerCase()) ||
+          libro.bookDTO?.authorDTO?.name
+            ?.toLowerCase()
+            .includes(this.terminoBusqueda.toLowerCase())
+      );
 
-      const coincideEstado = !this.filtroEstado || prestamo.estado === this.filtroEstado;
+    // CORREGIDO: Manejar el caso cuando filtroEstado es "OVERDUE" (del HTML) pero el estado real es "LATE"
+    const coincideEstado = !this.filtroEstado || 
+      (this.filtroEstado === 'OVERDUE' ? prestamo.estado === 'LATE' : prestamo.estado === this.filtroEstado);
 
-      const coincideUsuario =
-        !this.filtroUsuario ||
-        prestamo.usuario.toLowerCase().includes(this.filtroUsuario.toLowerCase());
+    const coincideUsuario =
+      !this.filtroUsuario ||
+      prestamo.usuario.toLowerCase().includes(this.filtroUsuario.toLowerCase());
 
-      const coincideFecha = this.filtrarPorFecha(prestamo);
+    const coincideFecha = this.filtrarPorFecha(prestamo);
 
-      return coincideBusqueda && coincideEstado && coincideUsuario && coincideFecha;
-    });
-
-    filtered.sort((a, b) => {
-      const aValue = (a as any)[this.campoOrden];
-      const bValue = (b as any)[this.campoOrden];
-
-      if (aValue < bValue) return this.direccionOrden === 'asc' ? -1 : 1;
-      if (aValue > bValue) return this.direccionOrden === 'asc' ? 1 : -1;
-      return 0;
-    });
-
-    this.prestamosFiltrados = filtered;
-    this.actualizarPaginacion();
-  }
-
-filtrarPorFecha(prestamo: Prestamo): boolean {
-  if (!this.filtroFecha) return true;
-
-  // Fecha actual en la zona horaria local
-  const hoy = new Date();
-  const hoyLocal = new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate());
-  
-  // Convertir fecha del préstamo a zona horaria local
-  const fechaPrestamo = new Date(prestamo.fechaPrestamo);
-  const fechaPrestamoLocal = new Date(
-    fechaPrestamo.getFullYear(), 
-    fechaPrestamo.getMonth(), 
-    fechaPrestamo.getDate()
-  );
-
-  // Convertir fecha de vencimiento a zona horaria local
-  const fechaVencimiento = new Date(prestamo.fechaVencimiento);
-  const fechaVencimientoLocal = new Date(
-    fechaVencimiento.getFullYear(), 
-    fechaVencimiento.getMonth(), 
-    fechaVencimiento.getDate()
-  );
-
-  console.log('🔍 FILTRO FECHA:', {
-    filtro: this.filtroFecha,
-    hoy: hoyLocal.toISOString().split('T')[0],
-    prestamo: fechaPrestamoLocal.toISOString().split('T')[0],
-    vencimiento: fechaVencimientoLocal.toISOString().split('T')[0],
-    estado: prestamo.estado
+    return coincideBusqueda && coincideEstado && coincideUsuario && coincideFecha;
   });
 
-  switch (this.filtroFecha) {
-    case 'hoy':
-      const sonMismoDia = fechaPrestamoLocal.getTime() === hoyLocal.getTime();
-      console.log('📅 ¿Es hoy?', sonMismoDia);
-      return sonMismoDia;
+  filtered.sort((a, b) => {
+    const aValue = (a as any)[this.campoOrden];
+    const bValue = (b as any)[this.campoOrden];
 
-    case 'semana':
-      const unaSemanaAtras = new Date(hoyLocal);
-      unaSemanaAtras.setDate(hoyLocal.getDate() - 7);
-      return fechaPrestamoLocal >= unaSemanaAtras;
+    if (aValue < bValue) return this.direccionOrden === 'asc' ? -1 : 1;
+    if (aValue > bValue) return this.direccionOrden === 'asc' ? 1 : -1;
+    return 0;
+  });
 
-    case 'mes':
-      const unMesAtras = new Date(hoyLocal);
-      unMesAtras.setMonth(hoyLocal.getMonth() - 1);
-      return fechaPrestamoLocal >= unMesAtras;
-
-    case 'vencidos':
-      const estaVencido = (prestamo.estado === 'OVERDUE') || 
-                         (prestamo.estado === 'ACTIVE' && fechaVencimientoLocal < hoyLocal);
-      console.log('⏰ ¿Está vencido?', estaVencido);
-      return estaVencido;
-
-    default:
-      return true;
-  }
+  this.prestamosFiltrados = filtered;
+  this.actualizarPaginacion();
 }
 
-  cargarPrestamosVencidos() {
-    this.cargando = true;
-    this.loansService.getOverdueLoans().subscribe({
-      next: (loans) => {
-        this.prestamosFiltrados = loans.map((loan) => this.mapearPrestamoBackend(loan));
-        this.cargando = false;
-      },
-      error: (err) => {
-        this.error =
-          'Error al cargar préstamos vencidos: ' + (err.error?.message || 'Inténtalo de nuevo');
-        this.cargando = false;
-      },
-    });
+  filtrarPorFecha(prestamo: Prestamo): boolean {
+    if (!this.filtroFecha) return true;
+
+    const hoy = new Date();
+    const hoyLocal = new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate());
+
+    const fechaPrestamo = new Date(prestamo.fechaPrestamo);
+    const fechaPrestamoLocal = new Date(
+      fechaPrestamo.getFullYear(),
+      fechaPrestamo.getMonth(),
+      fechaPrestamo.getDate()
+    );
+
+    const fechaVencimiento = new Date(prestamo.fechaVencimiento);
+    const fechaVencimientoLocal = new Date(
+      fechaVencimiento.getFullYear(),
+      fechaVencimiento.getMonth(),
+      fechaVencimiento.getDate()
+    );
+
+    switch (this.filtroFecha) {
+      case 'hoy':
+        return fechaPrestamoLocal.getTime() === hoyLocal.getTime();
+
+      case 'semana':
+        const unaSemanaAtras = new Date(hoyLocal);
+        unaSemanaAtras.setDate(hoyLocal.getDate() - 7);
+        return fechaPrestamoLocal >= unaSemanaAtras;
+
+      case 'mes':
+        const unMesAtras = new Date(hoyLocal);
+        unMesAtras.setMonth(hoyLocal.getMonth() - 1);
+        return fechaPrestamoLocal >= unMesAtras;
+
+      case 'vencidos':
+        const estaVencido = prestamo.estado === 'LATE';
+        return estaVencido;
+
+      default:
+        return true;
+    }
   }
 
   ordenarPor(campo: string) {
@@ -344,15 +335,26 @@ filtrarPorFecha(prestamo: Prestamo): boolean {
     this.filtrarPrestamos();
   }
 
-limpiarFiltros() {
-  this.terminoBusqueda = '';
-  this.filtroUsuario = '';
-  this.filtroFecha = '';
-  this.filtrarPrestamos();
-}
+  limpiarFiltros() {
+    this.terminoBusqueda = '';
+    this.filtroUsuario = '';
+    this.filtroFecha = '';
+    this.filtroEstado = 'PENDING';
+    this.filtrarPrestamos();
+  }
 
+  // Métodos para contar préstamos por estado
   contarPrestamos(): number {
     return this.prestamos.length;
+  }
+
+  contarPrestamosPendientes(): number {
+    return this.prestamos.filter((p) => p.estado === 'PENDING').length;
+  }
+
+
+  contarPrestamosRechazados(): number {
+    return this.prestamos.filter((p) => p.estado === 'REJECTED').length;
   }
 
   contarPrestamosActivos(): number {
@@ -364,21 +366,7 @@ limpiarFiltros() {
   }
 
   contarPrestamosVencidos(): number {
-    const hoy = new Date();
-    const hoyNormalizado = new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate());
-
-    return this.prestamos.filter((prestamo) => {
-      if (prestamo.estado === 'RETURNED') return false;
-
-      const fechaVencimiento = new Date(prestamo.fechaVencimiento);
-      const fechaVencimientoNormalizada = new Date(
-        fechaVencimiento.getFullYear(),
-        fechaVencimiento.getMonth(),
-        fechaVencimiento.getDate()
-      );
-
-      return fechaVencimientoNormalizada < hoyNormalizado;
-    }).length;
+    return this.prestamos.filter((p) => p.estado === 'LATE').length;
   }
 
   actualizarPaginacion() {
@@ -468,6 +456,45 @@ limpiarFiltros() {
     });
   }
 
+  // Métodos para los estados del préstamo
+  aprobarPrestamo(prestamo: Prestamo) {
+    this.cargando = true;
+    this.loansService.approveLoan(prestamo.id).subscribe({
+      next: (updatedLoan) => {
+        const index = this.prestamos.findIndex((p) => p.id === prestamo.id);
+        if (index !== -1) {
+          this.prestamos[index] = this.mapearPrestamoBackend(updatedLoan);
+        }
+        this.filtrarPrestamos();
+        this.cargando = false;
+      },
+      error: (err) => {
+        this.error =
+          'Error al aprobar el préstamo: ' + (err.error?.message || 'Inténtalo de nuevo');
+        this.cargando = false;
+      },
+    });
+  }
+
+  rechazarPrestamo(prestamo: Prestamo) {
+    this.cargando = true;
+    this.loansService.rejectLoan(prestamo.id).subscribe({
+      next: (updatedLoan) => {
+        const index = this.prestamos.findIndex((p) => p.id === prestamo.id);
+        if (index !== -1) {
+          this.prestamos[index] = this.mapearPrestamoBackend(updatedLoan);
+        }
+        this.filtrarPrestamos();
+        this.cargando = false;
+      },
+      error: (err) => {
+        this.error =
+          'Error al rechazar el préstamo: ' + (err.error?.message || 'Inténtalo de nuevo');
+        this.cargando = false;
+      },
+    });
+  }
+
   devolverPrestamo(prestamo: Prestamo) {
     this.cargando = true;
     this.loansService.returnLoan(prestamo.id).subscribe({
@@ -527,29 +554,33 @@ limpiarFiltros() {
     });
   }
 
-formatearFecha(fecha: string): string {
-  if (!fecha) return 'No especificada';
-  try {
-    const fechaObj = new Date(fecha);
-    const fechaAjustada = new Date(fechaObj.getTime() + (fechaObj.getTimezoneOffset() * 60000));
-    
-    return fechaAjustada.toLocaleDateString('es-ES', {
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-    });
-  } catch (error) {
-    return 'Fecha inválida';
+  formatearFecha(fecha: string): string {
+    if (!fecha) return 'No especificada';
+    try {
+      const fechaObj = new Date(fecha);
+      const fechaAjustada = new Date(fechaObj.getTime() + fechaObj.getTimezoneOffset() * 60000);
+
+      return fechaAjustada.toLocaleDateString('es-ES', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+      });
+    } catch (error) {
+      return 'Fecha inválida';
+    }
   }
-}
 
   obtenerClaseEstado(estado: string): string {
     switch (estado) {
+      case 'PENDING':
+        return 'bg-yellow-100 text-yellow-700';
+      case 'REJECTED':
+        return 'bg-red-100 text-red-700';
       case 'ACTIVE':
-        return 'bg-green-100 text-green-700';
-      case 'RETURNED':
         return 'bg-blue-100 text-blue-700';
-      case 'OVERDUE':
+      case 'RETURNED':
+        return 'bg-gray-100 text-gray-700';
+      case 'LATE':
         return 'bg-red-100 text-red-700';
       default:
         return 'bg-gray-100 text-gray-700';
@@ -558,11 +589,15 @@ formatearFecha(fecha: string): string {
 
   obtenerTextoEstado(estado: string): string {
     switch (estado) {
+      case 'PENDING':
+        return 'Pendiente';
+      case 'REJECTED':
+        return 'Rechazado';
       case 'ACTIVE':
         return 'Activo';
       case 'RETURNED':
         return 'Devuelto';
-      case 'OVERDUE':
+      case 'LATE':
         return 'Vencido';
       default:
         return estado;

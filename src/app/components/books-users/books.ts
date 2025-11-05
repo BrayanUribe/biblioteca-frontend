@@ -150,9 +150,12 @@ export class BookUserComponent implements OnInit {
     this.libroSeleccionado = null;
   }
 
-  solicitarPrestamo(libro: Libro) {
-    this.router.navigate(['/solicitar-prestamo', libro.id]);
-  }
+solicitarPrestamo(libro: Libro) {
+  this.router.navigate(['/loans-user'], { 
+    queryParams: { solicitarPrestamo: 'true', libroId: libro.id },
+    state: { libroSeleccionado: libro } // Mantén el state por si acaso
+  });
+}
 
   actualizarPaginacion() {
     this.totalPaginas = Math.ceil(this.librosFiltrados.length / this.librosPorPagina);

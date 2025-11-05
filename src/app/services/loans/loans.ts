@@ -2,6 +2,8 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
+// ==== INTERFACES ====
+
 export interface AuthorDTO {
   id: number;
   name: string;
@@ -44,7 +46,7 @@ export interface LoanDTO {
   loanDate: string;
   dueDate: string;
   returnDate: string | null;
-  status: 'ACTIVE' | 'RETURNED' | 'OVERDUE';
+  status: 'ACTIVE' | 'RETURNED' | 'OVERUE' | 'PENDING' | 'REJECTED';
   fine: number | null;
   loanItems: LoanItemDTO[];
 }
@@ -54,13 +56,16 @@ export interface CreateLoanRequest {
   bookIds: number[];
 }
 
+// ==== SERVICIO ====
+
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class LoansService {
-  private baseUrl = 'http://localhost:8088/loans'; 
+  private baseUrl = 'http://localhost:8088/loans';
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) {}
+
 
   getAllLoans(): Observable<LoanDTO[]> {
     return this.http.get<LoanDTO[]>(this.baseUrl);
@@ -69,6 +74,7 @@ export class LoansService {
   getLoanById(id: number): Observable<LoanDTO> {
     return this.http.get<LoanDTO>(`${this.baseUrl}/${id}`);
   }
+
 
   getLoansByUser(userId: number): Observable<LoanDTO[]> {
     return this.http.get<LoanDTO[]>(`${this.baseUrl}/user/${userId}`);
@@ -90,11 +96,38 @@ export class LoansService {
     return this.http.post<LoanDTO>(this.baseUrl, request);
   }
 
-  returnLoan(id: number): Observable<LoanDTO> {
-    return this.http.put<LoanDTO>(`${this.baseUrl}/${id}/return`, {});
+
+  requestLoan(request: CreateLoanRequest): Observable<LoanDTO> {
+    return this.http.post<LoanDTO>(`${this.baseUrl}/request`, request);
   }
+
+
+  approveLoan(id: number): Observable<LoanDTO> {
+    return this.http.put<LoanDTO>(`${this.baseUrl}/approve/${id}`, {});
+  }
+
+
+  rejectLoan(id: number): Observable<LoanDTO> {
+    return this.http.put<LoanDTO>(`${this.baseUrl}/reject/${id}`, {});
+  }
+
+
+  returnLoan(id: number): Observable<LoanDTO> {
+    return this.http.put<LoanDTO>(`${this.baseUrl}/return/${id}`, {});
+  }
+
 
   deleteLoan(id: number): Observable<void> {
     return this.http.delete<void>(`${this.baseUrl}/${id}`);
   }
+
+
+  updateOverdueLoans(): Observable<string> {
+    return this.http.post<string>(
+      `${this.baseUrl}/updateOverdue`,
+      {},
+      { responseType: 'text' as 'json' }
+    );
+  }
 }
+
