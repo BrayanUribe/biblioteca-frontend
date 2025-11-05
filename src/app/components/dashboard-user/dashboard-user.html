@@ -14,6 +14,9 @@
       </div>
       <div class="flex items-center gap-4"></div>
     </div>
+    <div class="flex items-center gap-4">
+</div>
+
   </header>
 
   <!-- Stats Grid -->
@@ -503,134 +506,119 @@
   </div>
 </div>
 
-<!-- Modal de Detalles de la Actividad -->
+<!-- Modal de Detalles de la Actividad - SIMPLIFICADO -->
 <div
   *ngIf="mostrarDetalles && logSeleccionado"
   class="fixed inset-0 bg-black/50 flex items-center justify-center z-[60] backdrop-blur-sm animate-fade-in"
   (click)="mostrarDetalles = false"
 >
   <div
-    class="bg-white rounded-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden shadow-2xl border border-orange-200/40 animate-slide-up mx-4"
+    class="bg-white rounded-2xl w-full max-w-md max-h-[80vh] overflow-hidden shadow-2xl border border-orange-200/40 animate-slide-up mx-4"
     (click)="$event.stopPropagation()"
   >
     <!-- Header -->
     <div
       class="flex justify-between items-center p-6 border-b border-orange-200/30 bg-orange-50/30"
     >
-      <div>
-        <h2 class="text-xl font-bold text-amber-900">Detalles de tu Actividad</h2>
-        <p class="text-amber-800/70 text-sm mt-1">Información completa del registro</p>
+      <div class="flex items-center gap-3">
+        <div 
+          class="w-10 h-10 rounded-full flex items-center justify-center text-white text-lg"
+          [class]="{
+            'bg-green-500': logSeleccionado.action === 'CREATE',
+            'bg-blue-500': logSeleccionado.action === 'UPDATE', 
+            'bg-amber-500': logSeleccionado.action === 'LOGIN',
+            'bg-purple-500': logSeleccionado.action === 'LOAN_CREATE',
+            'bg-gray-500': true
+          }"
+        >
+          {{
+            logSeleccionado.action === 'CREATE' ? '➕' :
+            logSeleccionado.action === 'UPDATE' ? '✏️' :
+            logSeleccionado.action === 'LOGIN' ? '🔐' :
+            logSeleccionado.action === 'LOAN_CREATE' ? '📚' : '📝'
+          }}
+        </div>
+        <div>
+          <h2 class="text-xl font-bold text-amber-900">Detalles de Actividad</h2>
+          <p class="text-amber-800/70 text-sm">{{ formatearTiempoRelativo(logSeleccionado.timestamp) }}</p>
+        </div>
       </div>
       <button
         (click)="mostrarDetalles = false"
-        class="w-10 h-10 rounded-full flex items-center justify-center text-amber-700/70 hover:bg-orange-100 hover:text-amber-900 transition-all duration-300 text-xl font-bold"
+        class="w-8 h-8 rounded-full flex items-center justify-center text-amber-700/70 hover:bg-orange-100 hover:text-amber-900 transition-all duration-300 text-lg"
       >
         ×
       </button>
     </div>
 
-    <!-- Contenido de detalles -->
-    <div class="p-6 overflow-y-auto max-h-[calc(90vh-200px)]">
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+    <!-- Contenido de detalles simplificado -->
+    <div class="p-6 overflow-y-auto max-h-[calc(80vh-140px)]">
+      <!-- Información principal -->
+      <div class="space-y-4">
+        <!-- Descripción amigable -->
+        <div class="bg-amber-50/50 rounded-xl p-4 border border-amber-200/30">
+          <p class="text-amber-900 font-medium text-center">
+            {{ obtenerDescripcionAmigable(logSeleccionado) }}
+          </p>
+        </div>
+
+        <!-- Detalles específicos según el tipo de acción -->
+        <div *ngIf="logSeleccionado.entityType === 'LOAN_REQUEST' && logSeleccionado.action === 'CREATE'" 
+             class="bg-green-50/50 rounded-xl p-4 border border-green-200/30">
+          <h3 class="font-semibold text-green-800 text-sm mb-2">📦 Detalles del Préstamo</h3>
+          <p class="text-green-700 text-sm">Solicitaste el préstamo de varios libros</p>
+          <p class="text-green-600/70 text-xs mt-2">Estado: Pendiente de aprobación</p>
+        </div>
+
+        <div *ngIf="logSeleccionado.entityType === 'USER' && logSeleccionado.action === 'UPDATE'"
+             class="bg-blue-50/50 rounded-xl p-4 border border-blue-200/30">
+          <h3 class="font-semibold text-blue-800 text-sm mb-2">👤 Actualización de Perfil</h3>
+          <p class="text-blue-700 text-sm">Actualizaste tu información personal</p>
+        </div>
+
+        <div *ngIf="logSeleccionado.action === 'LOGIN'"
+             class="bg-amber-50/50 rounded-xl p-4 border border-amber-200/30">
+          <h3 class="font-semibold text-amber-800 text-sm mb-2">🔐 Inicio de Sesión</h3>
+          <p class="text-amber-700 text-sm">Ingresaste al sistema exitosamente</p>
+        </div>
+
         <!-- Información básica -->
-        <div class="space-y-4">
-          <div>
-            <label class="block text-sm font-medium text-amber-900 mb-2">Acción</label>
-            <div
-              class="inline-flex items-center px-4 py-2 rounded-full text-sm font-medium shadow-sm"
-              [class]="{
-                'bg-green-100 text-green-800': logSeleccionado.action === 'CREATE',
-                'bg-blue-100 text-blue-800': logSeleccionado.action === 'UPDATE',
-                'bg-red-100 text-red-800': logSeleccionado.action === 'DELETE',
-                'bg-amber-100 text-amber-800': logSeleccionado.action === 'LOGIN',
-                'bg-gray-100 text-gray-800': !['CREATE', 'UPDATE', 'DELETE', 'LOGIN'].includes(
-                  logSeleccionado.action
-                )
-              }"
-            ></div>
-          </div>
-
-          <div>
-            <label class="block text-sm font-medium text-amber-900 mb-2">Tipo</label>
-            <p class="text-amber-900 font-semibold">{{ logSeleccionado.entityType }}</p>
-          </div>
-
-          <div>
-            <label class="block text-sm font-medium text-amber-900 mb-2">ID</label>
-            <p class="text-amber-900 font-semibold">{{ logSeleccionado.entityId }}</p>
-          </div>
+        <div class="grid grid-cols-2 gap-3 text-sm">
+          <div class="text-amber-700/70">Tipo:</div>
+          <div class="text-amber-900 font-medium">{{ obtenerTipoAmigable(logSeleccionado.entityType) }}</div>
+          
+          <div class="text-amber-700/70">Fecha:</div>
+          <div class="text-amber-900 font-medium">{{ formatearFecha(logSeleccionado.timestamp) }}</div>
+          
+          <div class="text-amber-700/70">Hora:</div>
+          <div class="text-amber-900 font-medium">{{ formatearHora(logSeleccionado.timestamp) }}</div>
         </div>
 
-        <!-- Información temporal -->
-        <div class="space-y-4">
-          <div>
-            <label class="block text-sm font-medium text-amber-900 mb-2">Fecha y Hora</label>
-            <p class="text-amber-900 font-semibold">
-              {{ formatearFechaCompleta(logSeleccionado.timestamp) }}
-            </p>
-          </div>
-
-          <div>
-            <label class="block text-sm font-medium text-amber-900 mb-2">Hace</label>
-            <p class="text-amber-900 font-semibold">
-              {{ formatearTiempoRelativo(logSeleccionado.timestamp) }}
-            </p>
-          </div>
-
-          <div *ngIf="logSeleccionado.ipAddress">
-            <label class="block text-sm font-medium text-amber-900 mb-2">Dirección IP</label>
-            <p class="text-amber-900 font-semibold">{{ logSeleccionado.ipAddress }}</p>
+        <!-- Solo mostrar datos importantes del JSON -->
+        <div *ngIf="logSeleccionado.newValue && (logSeleccionado.entityType === 'USER' && logSeleccionado.action === 'UPDATE')"
+             class="bg-gray-50/50 rounded-xl p-3 border border-gray-200/30">
+          <h3 class="font-semibold text-gray-800 text-sm mb-2">📝 Cambios realizados</h3>
+          <div class="text-gray-700 text-xs space-y-1">
+            <div *ngIf="obtenerCampoModificado(logSeleccionado.newValue, 'name')">
+              • <span class="font-medium">Nombre:</span> {{ obtenerCampoModificado(logSeleccionado.newValue, 'name') }}
+            </div>
+            <div *ngIf="obtenerCampoModificado(logSeleccionado.newValue, 'email')">
+              • <span class="font-medium">Email:</span> {{ obtenerCampoModificado(logSeleccionado.newValue, 'email') }}
+            </div>
+            <!-- Agregar más campos según necesites -->
           </div>
         </div>
-
-        <!-- Descripción -->
-        <div class="space-y-4">
-          <div>
-            <label class="block text-sm font-medium text-amber-900 mb-2">Descripción</label>
-            <p class="text-amber-900 leading-relaxed">{{ logSeleccionado.description }}</p>
-          </div>
-        </div>
-      </div>
-
-      <!-- Datos JSON -->
-      <div
-        class="grid grid-cols-1 lg:grid-cols-2 gap-6"
-        *ngIf="logSeleccionado.oldValue || logSeleccionado.newValue"
-      >
-        <div *ngIf="logSeleccionado.oldValue" class="animate-fade-in">
-          <label class="block text-sm font-medium text-amber-900 mb-3">Estado Anterior</label>
-          <pre
-            class="bg-orange-50/50 p-4 rounded-xl text-sm overflow-x-auto max-h-60 border border-orange-200/30 font-mono text-amber-800"
-            >{{ parseJson(logSeleccionado.oldValue) | json }}</pre
-          >
-        </div>
-
-        <div *ngIf="logSeleccionado.newValue" class="animate-fade-in delay-100">
-          <label class="block text-sm font-medium text-amber-900 mb-3">Nuevo Estado</label>
-          <pre
-            class="bg-green-50/50 p-4 rounded-xl text-sm overflow-x-auto max-h-60 border border-green-200/30 font-mono text-amber-800"
-            >{{ parseJson(logSeleccionado.newValue) | json }}</pre
-          >
-        </div>
-      </div>
-
-      <div
-        *ngIf="!logSeleccionado.oldValue && !logSeleccionado.newValue"
-        class="text-center py-8 text-amber-700/70 animate-fade-in"
-      >
-        <div class="text-4xl mb-4 opacity-50">📄</div>
-        <p>No hay datos adicionales para mostrar</p>
       </div>
     </div>
 
     <!-- Footer -->
-    <div class="p-6 border-t border-orange-200/30 bg-orange-50/30 flex justify-end">
+    <div class="p-4 border-t border-orange-200/30 bg-orange-50/30 flex justify-center">
       <button
         (click)="mostrarDetalles = false"
-        class="bg-gradient-to-r from-amber-200 to-amber-400 text-white px-6 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 flex items-center gap-2"
+        class="bg-gradient-to-r from-amber-200 to-amber-400 text-white px-6 py-2 rounded-lg font-medium shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 flex items-center gap-2"
       >
         <span>✓</span>
-        Cerrar
+        Entendido
       </button>
     </div>
   </div>
