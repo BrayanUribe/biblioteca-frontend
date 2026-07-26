@@ -41,15 +41,25 @@ export interface Book {
   providedIn: 'root'
 })
 export class BookService {
-  getAllAuthors() {
-    throw new Error('Method not implemented.');
-  }
-  private apiUrl = 'http://localhost:8088/books'; 
+  private apiUrl = 'http://localhost:8088/books';
 
   constructor(private http: HttpClient) { }
 
   getAllBooks(): Observable<BookDTO[]> {
     return this.http.get<BookDTO[]>(`${this.apiUrl}`).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  getBooks(): Observable<BookDTO[]> {
+    return this.getAllBooks();
+  }
+
+  searchBooks(query?: string, genre?: string): Observable<BookDTO[]> {
+    let params: any = {};
+    if (query) params.q = query;
+    if (genre) params.genre = genre;
+    return this.http.get<BookDTO[]>(`${this.apiUrl}/search`, { params }).pipe(
       catchError(this.handleError)
     );
   }

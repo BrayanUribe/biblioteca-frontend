@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { UserService } from '../../services/users/users';
+import { ImageService } from '../../services/images/images';
 
 interface UserProfile {
   id: number;
@@ -23,21 +24,23 @@ interface UserProfile {
   styleUrls: ['./profile.css']
 })
 export class ProfileComponent implements OnInit {
-changePassword() {
-throw new Error('Method not implemented.');
-}
-  
   user: UserProfile | null = null;
   loading = false;
   errorMessage = '';
+  successMessage = '';
   showEditModal = false;
   showImageModal = false;
+  showPasswordModal = false;
   editingUser: Partial<UserProfile> = {};
   selectedImage: File | null = null;
   imagePreview: string | null = null;
   today = new Date();
 
-  constructor(private userService: UserService) {}
+  currentPassword = '';
+  newPassword = '';
+  confirmPassword = '';
+
+  constructor(private userService: UserService, private imageService: ImageService) {}
 
   ngOnInit() {
     this.loadUserProfile();
@@ -92,18 +95,13 @@ saveProfile() {
   }
   this.loading = true;
   this.errorMessage = '';
-  console.log('📝 Actualizando usuario en backend:', this.editingUser);
   const userDTO = {
     name: this.editingUser.name!,
     email: this.editingUser.email!,
-    role: this.editingUser.role || this.user.role!,
-    phone: this.editingUser.phone || '',
-    address: this.editingUser.address || '',
-    imageUrl: this.editingUser.imageUrl || this.user.imageUrl || ''
+    role: this.editingUser.role || this.user.role!
   };
   this.userService.updateUser(userId, userDTO).subscribe({
     next: (updatedUser) => {
-      console.log('✅ Usuario actualizado en backend:', updatedUser);
       this.user = {
         ...this.user!,
         ...updatedUser,
@@ -117,7 +115,6 @@ saveProfile() {
       this.loading = false;
     },
     error: (error) => {
-      console.error('❌ Error actualizando usuario:', error);
       this.errorMessage = 'No se pudo actualizar el perfil.';
       this.loading = false;
     }
@@ -161,23 +158,85 @@ saveProfile() {
   }
 
   saveImage() {
-    if (!this.selectedImage) {
+    if (!this.selectedImage || !this.user?.id) {
       this.errorMessage = 'Por favor selecciona una imagen';
       return;
     }
 
     this.loading = true;
     this.errorMessage = '';
-    
-    // Aquí iría la lógica real de Cloudinary o backend
-    setTimeout(() => {
-      if (this.user && this.imagePreview) {
-        this.user.imageUrl = this.imagePreview;
-        console.log('🖼️ Imagen actualizada localmente:', this.selectedImage);
+
+    this.imageService.updateUserImage(this.user.id, this.selectedImage).subscribe({
+      next: (updatedUser) => {
+        this.user = {
+          ...this.user!,
+          imageUrl: updatedUser.imageUrl
+        } as UserProfile;
+        this.closeImageModal();
+        this.loading = false;
+        this.successMessage = 'Imagen actualizada correctamente';
+        setTimeout(() => this.successMessage = '', 3000);
+      },
+      error: (error) => {
+        console.error('Error subiendo imagen:', error);
+        this.errorMessage = 'No se pudo subir la imagen.';
+        this.loading = false;
       }
-      this.closeImageModal();
-      this.loading = false;
-    }, 1000);
+    });
+  }
+
+  openPasswordModal() {
+    this.showPasswordModal = true;
+    this.currentPassword = '';
+    this.newPassword = '';
+    this.confirmPassword = '';
+    this.errorMessage = '';
+  }
+
+  closePasswordModal() {
+    this.showPasswordModal = false;
+    this.currentPassword = '';
+    this.newPassword = '';
+    this.confirmPassword = '';
+    this.errorMessage = '';
+  }
+
+  changePassword() {
+    if (!this.currentPassword || !this.newPassword || !this.confirmPassword) {
+      this.errorMessage = 'Todos los campos son requeridos';
+      return;
+    }
+    if (this.newPassword !== this.confirmPassword) {
+      this.errorMessage = 'Las contraseñas no coinciden';
+      return;
+    }
+    if (this.newPassword.length < 6) {
+      this.errorMessage = 'La contraseña debe tener al menos 6 caracteres';
+      return;
+    }
+    if (!this.user?.id) return;
+
+    this.loading = true;
+    this.errorMessage = '';
+
+    this.userService.updateUser(this.user.id, {
+      name: this.user.name,
+      email: this.user.email,
+      role: this.user.role,
+      password: this.newPassword
+    }).subscribe({
+      next: () => {
+        this.closePasswordModal();
+        this.loading = false;
+        this.successMessage = 'Contraseña actualizada correctamente';
+        setTimeout(() => this.successMessage = '', 3000);
+      },
+      error: (error) => {
+        console.error('Error cambiando contraseña:', error);
+        this.errorMessage = 'No se pudo cambiar la contraseña.';
+        this.loading = false;
+      }
+    });
   }
 
   // 🔹 Cerrar sesión

@@ -147,7 +147,7 @@ export class DashboardUserComponent implements OnInit {
 
   verPrestamos(event: Event) {
     event.preventDefault();
-    this.router.navigate(['/my-loans']);
+    this.router.navigate(['/loans-user']);
   }
 
   verPerfil(event: Event) {
@@ -157,7 +157,7 @@ export class DashboardUserComponent implements OnInit {
 
   buscarLibros(event: Event) {
     event.preventDefault();
-    this.router.navigate(['/search']);
+    this.router.navigate(['/books']);
   }
 
   // --------------------------------------------------------------------------
@@ -420,11 +420,7 @@ export class DashboardUserComponent implements OnInit {
   }
 
   debugLogs() {
-    console.log('🐛 DEBUG LOGS:');
-    console.log('User ID:', this.userId);
-    console.log('Logs Completos:', this.logsCompletos);
-    console.log('Logs Recientes:', this.logsRecientes);
-    console.log('Actividades Recientes:', this.actividadesRecientes);
+    // Debug method removed for production
   }
 
 

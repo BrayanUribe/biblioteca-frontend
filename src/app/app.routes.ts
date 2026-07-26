@@ -8,6 +8,10 @@ export const routes: Routes = [
     loadComponent: () => import('./components/login/login').then((m) => m.Login),
   },
   {
+    path: 'register',
+    loadComponent: () => import('./components/register/register').then((m) => m.RegisterComponent),
+  },
+  {
     path: 'unauthorized',
     loadComponent: () =>
       import('./components/unauthorized/unauthorized').then((m) => m.UnauthorizedComponent),
@@ -91,6 +95,30 @@ export const routes: Routes = [
       {
         path: 'loans-user',
         loadComponent: () => import('./components/loans-user/loans-user').then((m) => m.MyLoansComponent),
+        canActivate: [roleGuard],
+        data: {
+          expectedRoles: ['ROLE_ADMIN', 'ROLE_LIBRARIAN', 'ROLE_USER'],
+        },
+      },
+      {
+        path: 'search',
+        loadComponent: () => import('./components/search/search').then((m) => m.SearchComponent),
+        canActivate: [roleGuard],
+        data: {
+          expectedRoles: ['ROLE_ADMIN', 'ROLE_LIBRARIAN', 'ROLE_USER'],
+        },
+      },
+      {
+        path: 'favorites',
+        loadComponent: () => import('./components/favorites/favorites').then((m) => m.FavoritesComponent),
+        canActivate: [roleGuard],
+        data: {
+          expectedRoles: ['ROLE_ADMIN', 'ROLE_LIBRARIAN', 'ROLE_USER'],
+        },
+      },
+      {
+        path: 'reading-lists',
+        loadComponent: () => import('./components/reading-lists/reading-lists').then((m) => m.ReadingListsComponent),
         canActivate: [roleGuard],
         data: {
           expectedRoles: ['ROLE_ADMIN', 'ROLE_LIBRARIAN', 'ROLE_USER'],

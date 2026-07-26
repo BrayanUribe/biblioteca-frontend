@@ -1,6 +1,7 @@
-import { Component, OnInit, Renderer2, Inject } from '@angular/core';
+import { Component, OnInit, Renderer2, Inject, inject } from '@angular/core';
 import { CommonModule, DOCUMENT } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { UserService } from '../../services/users/users';
 
 interface UserPreferences {
   fontSize: 'small' | 'medium' | 'large' | 'x-large';
@@ -21,6 +22,7 @@ interface UserPreferences {
   styleUrls: ['./settings.css']
 })
 export class SettingsComponent implements OnInit {
+  private userService = inject(UserService);
   
   preferences: UserPreferences = {
     fontSize: 'medium',
@@ -80,8 +82,7 @@ export class SettingsComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    this.loadPreferences();
-    this.applyPreferences();
+    this.loadPreferencesFromBackend();
   }
 
   // ✅ Aplicar cambios inmediatamente sin guardar
@@ -102,26 +103,38 @@ export class SettingsComponent implements OnInit {
     }
   }
 
+  loadPreferencesFromBackend() {
+    this.userService.getUserProfile().subscribe({
+      next: (user: any) => {
+        if (user.preferences) {
+          try {
+            const parsed = JSON.parse(user.preferences);
+            this.preferences = { ...this.preferences, ...parsed };
+          } catch {}
+        }
+        this.applyPreferences();
+      },
+      error: () => {
+        this.loadPreferences();
+        this.applyPreferences();
+      }
+    });
+  }
+
   savePreferences() {
     localStorage.setItem('userPreferences', JSON.stringify(this.preferences));
+    this.userService.updatePreferences(JSON.stringify(this.preferences)).subscribe({
+      error: () => {}
+    });
     this.showSaveFeedback();
   }
 
   applyPreferences() {
     const html = this.document.documentElement;
     
-    console.log('🔧 Aplicando preferencias:', this.preferences);
-    
-    // 1. PRIMERO aplicar las variables CSS directamente
     this.renderer.setStyle(html, '--user-primary-color', this.preferences.primaryColor);
     this.renderer.setStyle(html, '--user-secondary-color', this.preferences.secondaryColor);
     
-    console.log('🎨 Variables aplicadas:', {
-      primary: getComputedStyle(html).getPropertyValue('--user-primary-color'),
-      secondary: getComputedStyle(html).getPropertyValue('--user-secondary-color')
-    });
-    
-    // 2. LUEGO aplicar las clases
     this.removeAllPreferenceClasses(html);
     
     this.renderer.addClass(html, `global-font-size-${this.preferences.fontSize}`);

@@ -121,6 +121,14 @@ export class UserService {
     return this.http.put<UserDTO>(`${this.apiUrl}/${id}`, user);
   }
 
+  updatePreferences(preferences: string): Observable<UserDTO> {
+    return this.http.put<UserDTO>(`${this.apiUrl}/me/preferences`, { preferences });
+  }
+
+  register(user: UserDTO): Observable<UserDTO> {
+    return this.http.post<UserDTO>(`${this.apiUrl}/register`, user);
+  }
+
   deleteUser(id: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
@@ -180,30 +188,7 @@ export class UserService {
   }
 
   getUserProfile(): Observable<UserProfile> {
-    return new Observable((observer) => {
-      const userEmail = this.getUserEmail();
-      if (!userEmail) {
-        observer.error('No se pudo determinar el correo del usuario.');
-        observer.complete();
-        return;
-      }
-      this.getAllUsers().subscribe({
-        next: (users: any[]) => {
-          const user = users.find((u) => u.email === userEmail);
-
-          if (user) {
-            observer.next(user);
-          } else {
-            observer.error('Usuario no encontrado en el backend.');
-          }
-          observer.complete();
-        },
-        error: (error) => {
-          observer.error(error);
-          observer.complete();
-        },
-      });
-    });
+    return this.http.get<UserProfile>(`${this.apiUrl}/me`);
   }
 
   private mapToUserProfile(user: any): UserProfile {

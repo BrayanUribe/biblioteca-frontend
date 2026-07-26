@@ -1,13 +1,13 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { UserService } from '../../services/users/users';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterModule],
   templateUrl: './login.html',
   styleUrls: ['./login.css'],
 })
@@ -55,12 +55,9 @@ export class Login {
         this.loading = false;
         if (response.accessToken) {
           const userRole = this.userService.getUserRole();
-          console.log('ROL DEL USUARIO:', userRole);
 
           if (userRole === 'ROLE_ADMIN' || userRole === 'ROLE_LIBRARIAN') {
             this.router.navigate(['/dashboard']);
-          } else if (userRole === 'ROLE_USER') {
-            this.router.navigate(['/dashboard-user']);
           } else {
             this.router.navigate(['/dashboard-user']);
           }

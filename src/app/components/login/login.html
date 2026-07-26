@@ -71,16 +71,6 @@
       </div>
 
 
-      <div class="remember-forgot">
-        <label class="checkbox-container">
-          <input type="checkbox" />
-          <span class="checkmark"></span>
-          Recordar sesión
-        </label>
-        <a href="#" class="forgot-link">¿Olvidaste tu contraseña?</a>
-      </div>
-
-
       <button 
         type="submit" 
         [disabled]="loginForm.invalid || loading" 
@@ -111,9 +101,9 @@
     <div class="login-footer">
       <p class="footer-text">
         ¿No tienes una cuenta? 
-        <a href="#" class="footer-link">Solicitar acceso</a>
+        <a routerLink="/register" class="footer-link">Crear cuenta</a>
       </p>
-      <p class="copyright">&copy; 2025 Biblioteca  · Todos los derechos reservados</p>
+      <p class="copyright">&copy; 2025 Biblioteca · Todos los derechos reservados</p>
     </div>
   </div>
 </div>

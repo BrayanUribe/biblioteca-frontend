@@ -39,6 +39,14 @@
     </div>
   </div>
 
+  <!-- Success State -->
+  <div *ngIf="successMessage" class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg mb-6 max-w-4xl mx-auto animate-fade-in">
+    <div class="flex items-center gap-3">
+      <span class="text-lg">✅</span>
+      <p class="font-medium">{{ successMessage }}</p>
+    </div>
+  </div>
+
   <!-- Main Content -->
   <div *ngIf="user && !loading" class="max-w-7xl mx-auto">
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
@@ -70,7 +78,7 @@
           
           <div class="space-y-3 mt-6">
             <button 
-              (click)="changePassword()"
+              (click)="openPasswordModal()"
               class="btn-amber w-full">
               🔒 Cambiar Contraseña
             </button>
@@ -295,7 +303,7 @@
             accept="image/*"
             class="block w-full text-sm text-amber-700 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-amber-50 file:text-amber-700 hover:file:bg-amber-100 transition-colors input-focus">
           
-          <p class="text-amber-600 text-xs mt-2">Formatos: JPG, PNG, GIF • Máx: 5MB</p>
+          <p class="text-amber-600 text-xs mt-2">Formatos: JPG, PNG, GIF - Max: 5MB</p>
         </div>
         
         <!-- Acciones -->
@@ -315,6 +323,81 @@
           </button>
         </div>
       </div>
+    </div>
+  </div>
+
+  <!-- Modal de Cambiar Contraseña -->
+  <div 
+    [class.hidden]="!showPasswordModal"
+    class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 animate-fade-in">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md transform transition-all duration-300 scale-100 modal-pop">
+      
+      <!-- Header Modal -->
+      <div class="flex justify-between items-center p-6 border-b border-amber-200">
+        <h2 class="text-xl font-bold text-amber-900">Cambiar Contraseña</h2>
+        <button 
+          (click)="closePasswordModal()"
+          class="text-amber-500 hover:text-amber-700 text-2xl transition-colors hover-scale">
+          ×
+        </button>
+      </div>
+      
+      <!-- Formulario -->
+      <form class="p-6 space-y-4" (ngSubmit)="changePassword()">
+        <div>
+          <label class="block text-amber-800 font-medium mb-2">Contraseña actual</label>
+          <input 
+            type="password" 
+            [(ngModel)]="currentPassword"
+            name="currentPassword"
+            class="w-full px-4 py-3 border border-amber-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent bg-amber-50 transition-all input-focus"
+            placeholder="Tu contraseña actual"
+            required>
+        </div>
+        
+        <div>
+          <label class="block text-amber-800 font-medium mb-2">Nueva contraseña</label>
+          <input 
+            type="password" 
+            [(ngModel)]="newPassword"
+            name="newPassword"
+            class="w-full px-4 py-3 border border-amber-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent bg-amber-50 transition-all input-focus"
+            placeholder="Minimo 6 caracteres"
+            required>
+        </div>
+
+        <div>
+          <label class="block text-amber-800 font-medium mb-2">Confirmar nueva contraseña</label>
+          <input 
+            type="password" 
+            [(ngModel)]="confirmPassword"
+            name="confirmPassword"
+            class="w-full px-4 py-3 border border-amber-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent bg-amber-50 transition-all input-focus"
+            placeholder="Repite la nueva contraseña"
+            required>
+        </div>
+
+        <!-- Error Message -->
+        <div *ngIf="errorMessage" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg animate-shake">
+          {{ errorMessage }}
+        </div>
+        
+        <!-- Acciones -->
+        <div class="flex gap-3 pt-4">
+          <button 
+            type="button"
+            (click)="closePasswordModal()"
+            class="btn-amber flex-1">
+            Cancelar
+          </button>
+          <button 
+            type="submit"
+            [disabled]="loading"
+            class="btn-primary flex-1">
+            {{ loading ? 'Guardando...' : 'Cambiar Contraseña' }}
+          </button>
+        </div>
+      </form>
     </div>
   </div>
 </div>

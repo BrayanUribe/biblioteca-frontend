@@ -70,11 +70,14 @@ export class SidebarComponent implements OnInit {
       items: [
         { label: 'Dashboard', route: '/dashboard-user', icon: '🏠', badge: '' },
         { label: 'Mis Préstamos', route: '/loans-user', icon: '📚', badge: '' },
+        { label: 'Favoritos', route: '/favorites', icon: '❤️', badge: '' },
+        { label: 'Mis Listas', route: '/reading-lists', icon: '📋', badge: '' },
       ]
     },
     {
       title: 'BIBLIOTECA',
       items: [
+        { label: 'Buscar Libros', route: '/search', icon: '🔍', badge: '' },
         { label: 'Libros', route: '/books', icon: '📘', badge: '' },
         { label: 'Autores', route: '/authors', icon: '✍️', badge: '' }
       ]
