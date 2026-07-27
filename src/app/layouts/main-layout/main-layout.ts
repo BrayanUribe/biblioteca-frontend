@@ -1,10 +1,11 @@
-import { Component } from '@angular/core';
-import { CommonModule } from '@angular/common'; // 👈 IMPORTANTE
+import { Component, OnInit, inject } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router'; 
 import { HeaderComponent } from '../../components/header/header';
 import { SidebarComponent } from '../../components/sidebar/sidebar';
 import { FooterComponent } from '../../components/footer/footer';
 import { SidebarService } from '../../services/sidebar/sidebar';
+import { PreferencesService } from '../../services/preferences/preferences';
 
 @Component({
   selector: 'app-main-layout',
@@ -19,16 +20,16 @@ import { SidebarService } from '../../services/sidebar/sidebar';
   templateUrl: './main-layout.html',
   styleUrls: ['./main-layout.css']
 })
-export class MainLayout {
-isSidebarOpen = true;
-
-  constructor(private sidebarService: SidebarService) {}
+export class MainLayout implements OnInit {
+  isSidebarOpen = true;
+  private sidebarService = inject(SidebarService);
+  private preferencesService = inject(PreferencesService);
 
   ngOnInit() {
-    // Suscribirse a los cambios del sidebar
     this.sidebarService.isOpen$.subscribe(isOpen => {
       this.isSidebarOpen = isOpen;
     });
+    this.preferencesService.init();
   }
 }
 
