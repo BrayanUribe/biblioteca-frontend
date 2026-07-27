@@ -23,7 +23,7 @@ export interface Author {
   providedIn: 'root'
 })
 export class AuthorsService {
-  private apiUrl = 'http://localhost:8088/authors'; 
+  private apiUrl = 'https://biblioteca-backend-y24p.onrender.com/authors'; 
 
   constructor(private http: HttpClient) { }
 

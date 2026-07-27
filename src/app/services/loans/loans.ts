@@ -62,7 +62,7 @@ export interface CreateLoanRequest {
   providedIn: 'root',
 })
 export class LoansService {
-  private baseUrl = 'http://localhost:8088/loans';
+  private baseUrl = 'https://biblioteca-backend-y24p.onrender.com/loans';
 
   constructor(private http: HttpClient) {}
 

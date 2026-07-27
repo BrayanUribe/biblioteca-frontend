@@ -21,7 +21,7 @@ export interface ReadingListItem {
 @Injectable({ providedIn: 'root' })
 export class ReadingListService {
   private http = inject(HttpClient);
-  private apiUrl = 'http://localhost:8088/reading-lists';
+  private apiUrl = 'https://biblioteca-backend-y24p.onrender.com/reading-lists';
 
   getUserLists(): Observable<ReadingList[]> {
     return this.http.get<ReadingList[]>(this.apiUrl);

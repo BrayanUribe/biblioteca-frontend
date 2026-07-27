@@ -8,7 +8,7 @@ import { Observable } from 'rxjs';
 })
 export class ImageService {
   private http = inject(HttpClient);
-  private apiUrl = 'http://localhost:8088/images'; 
+  private apiUrl = 'https://biblioteca-backend-y24p.onrender.com/images'; 
 
   updateUserImage(userId: number, imageFile: File): Observable<any> {
     const formData = new FormData();
@@ -38,6 +38,6 @@ export class ImageService {
 
     if (path.startsWith('http')) return path;
     
-    return `http://localhost:8088${path.startsWith('/') ? path : '/' + path}`;
+    return `https://biblioteca-backend-y24p.onrender.com${path.startsWith('/') ? path : '/' + path}`;
   }
 }

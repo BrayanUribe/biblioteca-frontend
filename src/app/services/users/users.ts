@@ -40,7 +40,7 @@ interface UserProfile {
 })
 export class UserService {
   private http = inject(HttpClient);
-  private apiUrl = 'http://localhost:8088/users';
+  private apiUrl = 'https://biblioteca-backend-y24p.onrender.com/users';
 
   constructor(@Inject(PLATFORM_ID) private platformId: any) {}
 

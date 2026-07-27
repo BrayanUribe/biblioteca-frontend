@@ -20,7 +20,7 @@ export interface SystemLog {
   providedIn: 'root'
 })
 export class SystemLogService {
-  private apiUrl = 'http://localhost:8088/logs'; 
+  private apiUrl = 'https://biblioteca-backend-y24p.onrender.com/logs'; 
 
   constructor(private http: HttpClient) { }
 

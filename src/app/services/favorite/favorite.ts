@@ -5,7 +5,7 @@ import { Observable } from 'rxjs';
 @Injectable({ providedIn: 'root' })
 export class FavoriteService {
   private http = inject(HttpClient);
-  private apiUrl = 'http://localhost:8088/favorites';
+  private apiUrl = 'https://biblioteca-backend-y24p.onrender.com/favorites';
 
   getUserFavorites(): Observable<any[]> {
     return this.http.get<any[]>(this.apiUrl);

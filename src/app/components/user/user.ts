@@ -99,7 +99,7 @@ getSafeImageUrl(usuario: Usuario): string {
   if (usuario.imge_url.startsWith('http')) {
     return usuario.imge_url;
   }
-  return `http://localhost:8088${usuario.imge_url.startsWith('/') ? '' : '/'}${usuario.imge_url}`;
+  return `https://biblioteca-backend-y24p.onrender.com${usuario.imge_url.startsWith('/') ? '' : '/'}${usuario.imge_url}`;
 }
 
 private mapearUsuarioBackend(user: any): Usuario {

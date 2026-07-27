@@ -43,7 +43,7 @@ export interface Book {
   providedIn: 'root'
 })
 export class BookService {
-  private apiUrl = 'http://localhost:8088/books';
+  private apiUrl = 'https://biblioteca-backend-y24p.onrender.com/books';
 
   constructor(private http: HttpClient) { }
 
