@@ -21,6 +21,7 @@ export interface BookDTO {
   available: boolean;
   authorDTO: AuthorDTO;
   imageUrl?: string;
+  description?: string;
 }
 
 export interface Book {
@@ -35,6 +36,7 @@ export interface Book {
     id: number;
   };
   imageUrl?: string;
+  description?: string;
 }
 
 @Injectable({

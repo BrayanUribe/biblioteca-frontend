@@ -106,6 +106,9 @@ export class PreferencesService {
 
     const html = document.documentElement;
 
+    html.style.setProperty('--user-primary-color', this.preferences.primaryColor);
+    html.style.setProperty('--user-secondary-color', this.preferences.secondaryColor);
+
     this.applyFontSettings(html);
     this.applyColorOverrides(html);
     this.applyAccessibility(html);

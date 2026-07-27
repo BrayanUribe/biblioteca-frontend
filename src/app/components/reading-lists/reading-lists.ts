@@ -29,6 +29,12 @@ import { BookService, BookDTO } from '../../services/book/book';
         <p class="text-amber-700">Cargando listas...</p>
       </div>
 
+      <div *ngIf="errorMsg" class="bg-red-50 border border-red-200 rounded-2xl p-6 mb-6 text-center">
+        <div class="text-4xl mb-2">⚠️</div>
+        <p class="text-red-600 font-semibold">{{ errorMsg }}</p>
+        <button (click)="loadLists()" class="mt-3 px-4 py-2 bg-red-100 text-red-700 rounded-xl hover:bg-red-200 transition-all">Reintentar</button>
+      </div>
+
       <div *ngIf="!loading && lists.length === 0" class="text-center py-12">
         <div class="text-6xl mb-4 opacity-50">📚</div>
         <h3 class="text-xl font-semibold text-amber-900 mb-2">No tienes listas todavia</h3>
@@ -162,6 +168,7 @@ export class ReadingListsComponent implements OnInit {
   allBooks: BookDTO[] = [];
   availableBooks: BookDTO[] = [];
   loading = false;
+  errorMsg = '';
 
   showCreateModal = false;
   newListName = '';
@@ -178,9 +185,10 @@ export class ReadingListsComponent implements OnInit {
 
   loadLists() {
     this.loading = true;
+    this.errorMsg = '';
     this.readingListService.getUserLists().subscribe({
       next: (lists) => { this.lists = lists; this.loading = false; },
-      error: () => { this.loading = false; }
+      error: (err) => { this.loading = false; this.errorMsg = 'Error al cargar listas: ' + (err.error?.message || err.message || 'Error desconocido'); console.error('Reading lists error:', err); }
     });
   }
 

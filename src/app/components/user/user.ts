@@ -356,4 +356,13 @@ private mapearUsuarioBackend(user: any): Usuario {
   puedeCrear(): boolean {
     return true; 
   }
+
+  esElMismoUsuario(usuario: Usuario): boolean {
+    const currentUser = this.userService.getCurrentUser();
+    return !!(currentUser && currentUser.id === usuario.id);
+  }
+
+  esAdmin(): boolean {
+    return this.userService.getUserRole() === 'ADMIN';
+  }
 }

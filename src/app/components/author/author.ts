@@ -47,7 +47,8 @@ export class AuthorComponent implements OnInit {
   nuevoAutor: any = {
     nombre: '',
     nacionalidad: '',
-    biografia: ''
+    biografia: '',
+    imageUrl: ''
   };
 
   ngOnInit() {
@@ -85,7 +86,8 @@ export class AuthorComponent implements OnInit {
     return {
       name: autor.nombre || '',
       nationality: autor.nacionalidad || '',
-      biography: autor.biografia || ''
+      biography: autor.biografia || '',
+      imageUrl: autor.imageUrl || ''
     };
   }
 
@@ -173,7 +175,8 @@ export class AuthorComponent implements OnInit {
     this.nuevoAutor = {
       nombre: '',
       nacionalidad: '',
-      biografia: ''
+      biografia: '',
+      imageUrl: ''
     };
     this.mostrarModal = true;
     this.error = '';
@@ -198,7 +201,8 @@ export class AuthorComponent implements OnInit {
     this.nuevoAutor = {
       nombre: '',
       nacionalidad: '',
-      biografia: ''
+      biografia: '',
+      imageUrl: ''
     };
     this.error = '';
   }
@@ -294,7 +298,11 @@ export class AuthorComponent implements OnInit {
     return true; 
   }
 
-  // Helper para formatear biografía
+  obtenerAutoresPaginaActual(): Autor[] {
+    const inicio = (this.paginaActual - 1) * this.autoresPorPagina;
+    const fin = inicio + this.autoresPorPagina;
+    return this.autoresFiltrados.slice(inicio, fin);
+  }
   formatearBiografia(biografia: string): string {
     if (!biografia) return 'Sin biografía disponible';
     return biografia.length > 100 ? biografia.substring(0, 100) + '...' : biografia;

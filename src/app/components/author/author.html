@@ -165,7 +165,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr *ngFor="let autor of autoresFiltrados" 
+            <tr *ngFor="let autor of obtenerAutoresPaginaActual()" 
                 [class]="autorSeleccionado === autor ? 
                         'bg-orange-50 border-l-4 border-amber-500' : 
                         'hover:bg-orange-50/30 transition-all duration-200 hover:translate-x-1'"
@@ -356,6 +356,21 @@
                            transition-all duration-300 disabled:opacity-60 resize-none"
                     placeholder="Escribe la biografía del autor..."
                     [disabled]="guardando"></textarea>
+        </div>
+
+        <div class="flex flex-col mb-4">
+          <label for="imageUrl" class="font-medium text-amber-900 text-sm mb-2">URL de Foto</label>
+          <input type="text" id="imageUrl" [(ngModel)]="nuevoAutor.imageUrl" 
+                 name="imageUrl"
+                 class="px-4 py-3 border border-orange-200/30 rounded-xl bg-orange-50/50 
+                        focus:outline-none focus:border-amber-500 focus:ring-4 focus:ring-amber-100 
+                        transition-all duration-300 disabled:opacity-60"
+                 placeholder="https://ejemplo.com/foto.jpg"
+                 [disabled]="guardando">
+          <div *ngIf="nuevoAutor.imageUrl" class="mt-2 flex justify-center">
+            <img [src]="nuevoAutor.imageUrl" class="w-20 h-20 rounded-full object-cover border-2 border-amber-200"
+                 onerror="this.style.display='none'">
+          </div>
         </div>
 
         <div class="bg-orange-50/50 rounded-xl p-4 mt-4">

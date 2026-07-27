@@ -2,7 +2,7 @@ import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
-import { BookService } from '../../services/book/book';
+import { BookService, BookDTO } from '../../services/book/book';
 import { FavoriteService } from '../../services/favorite/favorite';
 
 @Component({
@@ -48,10 +48,12 @@ import { FavoriteService } from '../../services/favorite/favorite';
       </div>
 
       <div *ngIf="!loading && books.length > 0" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        <div *ngFor="let book of books" class="bg-white rounded-2xl shadow-lg border border-amber-200 overflow-hidden hover:shadow-xl transition-all hover:-translate-y-1">
+        <div *ngFor="let book of books"
+          (click)="selectedBook = book"
+          class="bg-white rounded-2xl shadow-lg border border-amber-200 overflow-hidden hover:shadow-xl transition-all hover:-translate-y-1 cursor-pointer">
           <div class="h-48 bg-gradient-to-br from-amber-100 to-orange-100 flex items-center justify-center overflow-hidden">
             <img *ngIf="book.imageUrl" [src]="book.imageUrl" [alt]="book.title"
-              class="w-full h-full object-cover" (error)="book.imageUrl = null" />
+              class="w-full h-full object-cover" (error)="book.imageUrl = undefined" />
             <span *ngIf="!book.imageUrl" class="text-5xl">📖</span>
           </div>
           <div class="p-4">
@@ -62,12 +64,72 @@ import { FavoriteService } from '../../services/favorite/favorite';
               <span [class]="book.available ? 'text-green-600 text-sm font-medium' : 'text-red-600 text-sm font-medium'">
                 {{ book.available ? 'Disponible' : 'No disponible' }}
               </span>
-              <button (click)="toggleFavorite(book.id)"
+              <button (click)="toggleFavorite(book.id); $event.stopPropagation()"
                 class="text-2xl transition-transform hover:scale-125"
                 [class]="isFavorited(book.id) ? 'text-red-500' : 'text-gray-300'">
                 {{ isFavorited(book.id) ? '❤️' : '🤍' }}
               </button>
             </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal de Detalle -->
+      <div *ngIf="selectedBook"
+        class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 backdrop-blur-sm p-4"
+        (click)="selectedBook = null">
+        <div class="bg-white rounded-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden shadow-2xl border border-amber-200/40"
+          (click)="$event.stopPropagation()">
+          <div class="flex justify-between items-center p-6 border-b border-amber-200/30 bg-amber-50/30">
+            <h2 class="text-xl font-semibold text-amber-900">Detalles del Libro</h2>
+            <button class="w-8 h-8 rounded-full flex items-center justify-center text-amber-700/70 hover:bg-orange-100 hover:text-amber-900 transition-all"
+              (click)="selectedBook = null">x</button>
+          </div>
+
+          <div class="p-6 overflow-y-auto max-h-[calc(90vh-120px)]">
+            <div class="flex flex-col lg:flex-row gap-8">
+              <div class="flex-shrink-0">
+                <div class="w-64 h-80 rounded-2xl overflow-hidden shadow-lg border border-orange-200/30">
+                  <img [src]="selectedBook.imageUrl || '/default-book.png'" [alt]="selectedBook.title"
+                    class="w-full h-full object-cover" />
+                </div>
+              </div>
+              <div class="flex-1 space-y-6">
+                <div>
+                  <h1 class="text-3xl font-bold text-amber-900 mb-2">{{ selectedBook.title }}</h1>
+                  <p class="text-xl text-amber-700/70">por {{ selectedBook.authorDTO?.name || 'Autor desconocido' }}</p>
+                </div>
+                <div class="flex flex-wrap gap-3">
+                  <span class="bg-amber-100 text-amber-700 px-3 py-1 rounded-full text-sm font-medium">{{ selectedBook.genre }}</span>
+                  <span [class]="selectedBook.available ? 'bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm font-medium' : 'bg-red-100 text-red-700 px-3 py-1 rounded-full text-sm font-medium'">
+                    {{ selectedBook.available ? 'Disponible' : 'No disponible' }}
+                  </span>
+                  <span class="bg-amber-100 text-amber-700 px-3 py-1 rounded-full text-sm font-medium">{{ selectedBook.publicationYear }}</span>
+                </div>
+                <div>
+                  <h3 class="font-semibold text-amber-900 mb-2">ISBN</h3>
+                  <p class="text-amber-700 font-mono">{{ selectedBook.isbn }}</p>
+                </div>
+                <div>
+                  <h3 class="font-semibold text-amber-900 mb-2">Descripcion</h3>
+                  <p class="text-amber-700/80 leading-relaxed">{{ selectedBook.description || 'Sin descripcion disponible' }}</p>
+                </div>
+                <div>
+                  <h3 class="font-semibold text-amber-900 mb-2">Stock</h3>
+                  <p class="text-amber-700">{{ selectedBook.stock }} ejemplares</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="flex gap-3 justify-end p-6 border-t border-amber-200/30 bg-amber-50/30">
+            <button class="bg-orange-100 text-amber-900 px-6 py-3 rounded-xl font-medium border border-orange-200 hover:bg-orange-200 transition-all"
+              (click)="selectedBook = null">Cerrar</button>
+            <button (click)="toggleFavorite(selectedBook.id)"
+              class="px-6 py-3 rounded-xl font-semibold transition-all"
+              [class]="isFavorited(selectedBook.id) ? 'bg-red-100 text-red-600 border border-red-200' : 'bg-amber-100 text-amber-700 border border-amber-200'">
+              {{ isFavorited(selectedBook.id) ? '❤️ Quitar de Favoritos' : '🤍 Agregar a Favoritos' }}
+            </button>
           </div>
         </div>
       </div>
@@ -80,7 +142,8 @@ export class SearchComponent implements OnInit {
 
   searchQuery = '';
   genreFilter = '';
-  books: any[] = [];
+  books: BookDTO[] = [];
+  selectedBook: BookDTO | null = null;
   favoritedIds = new Set<number>();
   loading = false;
   searched = false;

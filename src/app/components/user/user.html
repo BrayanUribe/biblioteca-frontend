@@ -526,12 +526,18 @@
               name="rol"
               required
               class="px-4 py-3 border border-orange-200/30 rounded-xl bg-orange-50/50 focus:outline-none focus:border-amber-500 focus:ring-4 focus:ring-amber-100 transition-all duration-300 disabled:opacity-60"
-              [disabled]="guardando"
+              [disabled]="guardando || !!(usuarioEditando && esElMismoUsuario(usuarioEditando))"
             >
               <option value="usuario">Usuario</option>
               <option value="bibliotecario">Bibliotecario</option>
               <option value="administrativo">Administrativo</option>
             </select>
+            <div
+              *ngIf="usuarioEditando && esElMismoUsuario(usuarioEditando)"
+              class="text-amber-600 text-xs mt-1"
+            >
+              🔒 No puedes cambiar tu propio rol
+            </div>
             <div
               *ngIf="userForm.submitted && !nuevoUsuario.rol"
               class="text-red-500 text-xs mt-1 flex items-center gap-1"

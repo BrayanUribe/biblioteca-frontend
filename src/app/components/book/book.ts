@@ -14,6 +14,7 @@ interface Libro {
   stock: number;
   disponible: boolean;
   imageUrl: string;
+  description: string;
 }
 
 @Component({
@@ -64,7 +65,9 @@ export class BookComponent implements OnInit {
     isbn: '',
     anioPublicacion: new Date().getFullYear(),
     stock: 1,
-    disponible: true
+    disponible: true,
+    imageUrl: '',
+    description: ''
   };
 
   ngOnInit() {
@@ -128,7 +131,8 @@ export class BookComponent implements OnInit {
       anioPublicacion: book.publicationYear || book.anioPublicacion || new Date().getFullYear(),
       stock: book.stock || 0,
       disponible: book.available !== undefined ? book.available : true,
-      imageUrl: book.imageUrl || book.imge_url || 'assets/default-book.png'
+      imageUrl: book.imageUrl || book.imge_url || 'assets/default-book.png',
+      description: book.description || ''
     };
   }
 
@@ -140,7 +144,9 @@ export class BookComponent implements OnInit {
       isbn: libro.isbn || '',
       publicationYear: libro.anioPublicacion || new Date().getFullYear(),
       stock: libro.stock || 0,
-      available: libro.disponible !== undefined ? libro.disponible : true
+      available: libro.disponible !== undefined ? libro.disponible : true,
+      imageUrl: libro.imageUrl || '',
+      description: libro.description || ''
     };
   }
 
@@ -258,7 +264,9 @@ export class BookComponent implements OnInit {
       isbn: '',
       anioPublicacion: new Date().getFullYear(),
       stock: 1,
-      disponible: true
+      disponible: true,
+      imageUrl: '',
+      description: ''
     };
     this.mostrarModal = true;
     this.error = '';
@@ -291,7 +299,9 @@ export class BookComponent implements OnInit {
       isbn: '',
       anioPublicacion: new Date().getFullYear(),
       stock: 1,
-      disponible: true
+      disponible: true,
+      imageUrl: '',
+      description: ''
     };
     this.error = '';
     this.mostrarSugerencias = false;
@@ -399,5 +409,11 @@ export class BookComponent implements OnInit {
 
   puedeCrear(): boolean {
     return true; 
+  }
+
+  obtenerLibrosPaginaActual(): Libro[] {
+    const inicio = (this.paginaActual - 1) * this.librosPorPagina;
+    const fin = inicio + this.librosPorPagina;
+    return this.librosFiltrados.slice(inicio, fin);
   }
 }
